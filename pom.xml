@@ -70,6 +70,11 @@
       <version>${camel.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jmx</artifactId>
+      <version>${camel.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
       <version>${spring.version}</version>
@@ -466,7 +471,7 @@
     <version.maven.release.plugin>2.1</version.maven.release.plugin>
     <version.maven.deploy.plugin>2.5</version.maven.deploy.plugin>
     <version.maven.dependency.plugin>2.2</version.maven.dependency.plugin>
-    <camel.version>2.6.0</camel.version>
+    <camel.version>2.7.0</camel.version>
     <jetty.version>6.1.25</jetty.version>
     <slf4j.version>1.6.1</slf4j.version>
     <oracle.version>11.2.0.1.0</oracle.version>
@@ -475,7 +480,7 @@
   <repositories>
     <repository>
       <id>apache releases</id>
-      <url>http://repository.apache.org/releases</url>
+      <url>https://repository.apache.org/content/repositories/releases/</url>
     </repository>
   </repositories>
 
