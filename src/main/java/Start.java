@@ -74,12 +74,9 @@ public class Start {
             System.out.println("Loading environment from " + PROPERTIES_FILE.getAbsolutePath());
             properties.load(new FileInputStream(PROPERTIES_FILE));
         } else {
-            System.err.println("Could not load environment file. Please enter properties manually");
+            System.err.println("Could not load environment file. Please provide the following properties: ");
             System.out.println();
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            readProperty("jdbc.url", properties, reader);
-            readProperty("jdbc.username", properties, reader);
-            readProperty("jdbc.password", properties, reader);
             readProperty("server.port", properties, reader);
             properties.store(new FileOutputStream(PROPERTIES_FILE), null);
             reader.close();
