@@ -7,4 +7,5 @@ TAGS:
 5. Pre fix kvittering med Batch component
 6. Batch component for kvittering
 7. Happy case threads
-8. 
+8. Failing tests because of threading.
+9.  
