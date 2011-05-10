@@ -4,10 +4,12 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Repository
+@Transactional
 public class DistributionMessageRepository
 {
     private final HibernateTemplate hibernate;
@@ -18,17 +20,14 @@ public class DistributionMessageRepository
         this.hibernate = new HibernateTemplate(sessionFactory);
     }
 
+    public DistributionMessageRepository()
+    {
+        this.hibernate = null;
+    }
+
     public long save(final DistributionMessage message) {
         hibernate.saveOrUpdate(message);
-        hibernate.flush();
-        hibernate.clear();
-
-        long id = message.getId();
-        if (id > 40 && id % 30 == 0) {
-            throw new RuntimeException("Provoked exception to initiate rollback.");    
-        }
-
-        return id;
+        return message.getId();
     }
 
     public List<DistributionMessage> getAll() {

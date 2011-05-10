@@ -80,8 +80,9 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
 
         Thread.sleep(3500);
 
-        assertThat(receiptDir.listFiles()).isNull();
-        assertThat(repository.getAll()).hasSize(0);
+        assertThat(receiptDir.listFiles()).isNotNull().hasSize(1);
+        assertThat(FileUtils.readFileToString(receiptDir.listFiles()[0])).contains("passed validation.");
+        assertThat(repository.getAll()).hasSize(150);
     }
     
     private void sendFile(final String classpathResource) throws Exception {

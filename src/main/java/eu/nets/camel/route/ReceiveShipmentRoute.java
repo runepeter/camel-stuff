@@ -1,5 +1,7 @@
 package eu.nets.camel.route;
 
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ public class ReceiveShipmentRoute extends SpringRouteBuilder
         from("file:{{nfs.dir}}/inbound").to("file:{{local.dir}}/inbound");
 
         from("file:{{local.dir}}/inbound?move=processed/")
+                .threads(5, 10)
                 .transacted()
                 .beanRef("shipmentValidator", "validate")
                 .multicast()
@@ -39,8 +42,15 @@ public class ReceiveShipmentRoute extends SpringRouteBuilder
 
         from(VALIDATED)
                 .transacted()
-                .split(bean("distributionMessageSplitter", "split")).streaming().parallelProcessing()
-                .threads(5, 10)
+                .split(bean("distributionMessageSplitter", "split")).streaming()
+                .process(new Processor()
+                {
+                    @Override
+                    public void process(Exchange exchange) throws Exception
+                    {
+                        System.err.println("Thread: " + Thread.currentThread().getName());
+                    }
+                })
                 .beanRef("distributionMessageRepository", "save");
 
     }
