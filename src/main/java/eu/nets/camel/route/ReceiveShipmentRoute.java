@@ -8,7 +8,7 @@ public class ReceiveShipmentRoute extends SpringRouteBuilder
 {
     private static final String KVITTERING = "direct:kvittering";
     private static final String KVITTERING_OUT = "file:{{receipt.dir}}";
-    private static final String VALIDATED = "direct:validated";
+    private static final String VALIDATED = "file:validated/";
 
     @Override
     public void configure() throws Exception
@@ -23,11 +23,6 @@ public class ReceiveShipmentRoute extends SpringRouteBuilder
                 .end();
 
         from(KVITTERING).beanRef("receiptTransformer").to(KVITTERING_OUT);
-
-        from(VALIDATED)
-                .split(bean("distributionMessageSplitter", "split")).streaming()
-                .delay(70)
-                .beanRef("distributionMessageRepository", "save");
 
     }
 }
