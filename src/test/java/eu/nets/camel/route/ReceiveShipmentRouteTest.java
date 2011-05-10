@@ -43,6 +43,23 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
 
         Thread.sleep(1000);
 
-        assertThat(new File(toDir, file.getName())).isFile();
+        assertFileExists(new File(toDir, file.getName()));
     }
+
+    private void assertFileExists(final File file) {
+        for (int i=0;i<10;i++) {
+            if (file.isFile()) {
+                break;
+            } else {
+                try
+                {
+                    Thread.sleep(500);
+                } catch (InterruptedException e)
+                {
+                }
+            }
+        }
+        assertThat(file).isFile();
+    }
+
 }
