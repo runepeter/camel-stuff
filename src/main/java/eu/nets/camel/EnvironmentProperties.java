@@ -45,6 +45,7 @@ public class EnvironmentProperties extends Properties {
     private void loadDefaultProperties() {
         this.setProperty("nfs.dir", "share/");
         this.setProperty("local.dir", "data/");
+        this.setProperty("receipt.dir", "receipt/");
     }
 
     private void loadEnvironmentProperties() {

@@ -16,16 +16,18 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
 {
     @Value("${nfs.dir}/inbound") private File fromDir;
     @Value("${local.dir}/inbound") private File toDir;
+    @Value("${receipt.dir}") private File receiptDir;
 
     @Before
     public void cleanDirs() throws Exception {
         if (fromDir.isDirectory()) {
             FileUtils.forceDelete(fromDir.getParentFile());
-            assertThat(fromDir.mkdirs()).isTrue();
         }
         if (toDir.isDirectory()) {
             FileUtils.forceDelete(toDir.getParentFile());
-            assertThat(toDir.mkdirs()).isTrue();
+        }
+        if (receiptDir.isDirectory()) {
+            FileUtils.forceDelete(receiptDir);
         }
     }
 
@@ -41,9 +43,26 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
 
         FileUtils.moveFileToDirectory(file, fromDir, false);
 
-        Thread.sleep(1000);
-
         assertFileExists(new File(toDir, file.getName()));
+    }
+
+    @Test
+    public void testReceiveInvalidShipment() throws Exception {
+
+        File tmpDir = new File(toDir, "tmp");
+        assertThat(tmpDir.mkdirs()).isTrue();
+
+        File file = new File(tmpDir, "jalla.txt");
+        FileUtils.writeStringToFile(file, "This is a test");
+        assertThat(file).isFile();
+
+        FileUtils.moveFileToDirectory(file, toDir, false);
+
+        File receiptFile = new File(receiptDir, "jalla.txt");
+        assertFileExists(receiptFile);
+        assertThat(FileUtils.readFileToString(receiptFile)).contains("DID NOT pass validation.");
+        Thread.sleep(500);
+        assertThat(new File("validated").list()).isNull();
     }
 
     private void assertFileExists(final File file) {
