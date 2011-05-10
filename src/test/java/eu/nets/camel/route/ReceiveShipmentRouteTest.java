@@ -8,6 +8,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import java.io.File;
+import java.net.URL;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -63,6 +64,32 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
         assertThat(FileUtils.readFileToString(receiptFile)).contains("DID NOT pass validation.");
         Thread.sleep(500);
         assertThat(new File("validated").list()).isNull();
+    }
+
+    @Test
+    public void testReceiveValidShipment() throws Exception {
+
+        sendFile("testdata/shipment.xml");
+
+        File receiptFile = new File(receiptDir, "shipment.xml");
+        assertFileExists(receiptFile);
+        assertThat(FileUtils.readFileToString(receiptFile)).contains("passed validation.");
+    }
+
+    private void sendFile(final String classpathResource) throws Exception {
+
+        URL url = getClass().getClassLoader().getResource(classpathResource);
+        assertThat(url).isNotNull();
+
+        File tmpDir = new File(toDir, "tmp");
+        if (!tmpDir.isDirectory()) {
+            assertThat(tmpDir.mkdirs()).isTrue();
+        }
+
+        File sourceFile = new File(url.getFile());
+        File targetFile = new File(tmpDir, sourceFile.getName());
+        FileUtils.copyFile(sourceFile, targetFile);
+        FileUtils.moveFileToDirectory(targetFile, toDir, false);
     }
 
     private void assertFileExists(final File file) {
