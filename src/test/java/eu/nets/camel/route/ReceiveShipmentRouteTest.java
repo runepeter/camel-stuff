@@ -36,6 +36,8 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
         if (receiptDir.isDirectory()) {
             FileUtils.forceDelete(receiptDir);
         }
+
+        assertThat(repository.getAll()).isEmpty();
     }
 
     @Test
@@ -76,11 +78,10 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
 
         sendFile("testdata/shipment.xml");
 
-        Thread.sleep(2500);
+        Thread.sleep(3500);
 
-        assertThat(receiptDir.listFiles()).isNotNull().hasSize(1);
-        assertThat(FileUtils.readFileToString(receiptDir.listFiles()[0])).contains("passed validation.");
-        assertThat(repository.getAll()).hasSize(150);
+        assertThat(receiptDir.listFiles()).isNull();
+        assertThat(repository.getAll()).hasSize(0);
     }
     
     private void sendFile(final String classpathResource) throws Exception {

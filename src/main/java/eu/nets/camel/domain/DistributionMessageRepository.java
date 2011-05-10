@@ -22,7 +22,13 @@ public class DistributionMessageRepository
         hibernate.saveOrUpdate(message);
         hibernate.flush();
         hibernate.clear();
-        return message.getId();
+
+        long id = message.getId();
+        if (id > 40 && id % 30 == 0) {
+            throw new RuntimeException("Provoked exception to initiate rollback.");    
+        }
+
+        return id;
     }
 
     public List<DistributionMessage> getAll() {
