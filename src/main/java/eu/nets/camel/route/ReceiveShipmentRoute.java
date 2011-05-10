@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class ReceiveShipmentRoute extends SpringRouteBuilder
 {
     private static final String KVITTERING = "direct:kvittering";
-    private static final String KVITTERING_OUT = "file:{{receipt.dir}}?fileName=${file:name}_${date:now:yyyyMMddhhmmss}.receipt";
+    private static final String KVITTERING_OUT = "file:{{receipt.dir}}?fileName=${header.filename}_${date:now:yyyyMMddhhmmss}.receipt";
     private static final String VALIDATED = "direct:validated";
 
     @Override
@@ -16,13 +16,26 @@ public class ReceiveShipmentRoute extends SpringRouteBuilder
         from("file:{{nfs.dir}}/inbound").to("file:{{local.dir}}/inbound");
 
         from("file:{{local.dir}}/inbound?move=processed/")
+                .transacted()
                 .beanRef("shipmentValidator", "validate")
                 .multicast()
                     .to(KVITTERING)
                     .filter(header("validation-status").isEqualTo(200)).to(VALIDATED)
                 .end();
 
-        from(KVITTERING).beanRef("receiptTransformer").log("${body}").to(KVITTERING_OUT);
+        from(KVITTERING)
+                .transacted()
+                .beanRef("receiptTransformer")
+                .beanRef("shipmentReceiptRepository", "save")
+                .to("batch:kvittering");
+
+        from("batch:kvittering")
+                .transacted()
+                .split(body())
+                .beanRef("shipmentReceiptRepository", "get")
+                .setHeader("filename", simple("body.filename"))
+                .transform(simple("body.message"))
+                .to(KVITTERING_OUT);
 
         from(VALIDATED)
                 .transacted()

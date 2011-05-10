@@ -1,20 +1,24 @@
 package eu.nets.camel.mottak.receipt;
 
+import eu.nets.camel.domain.ShipmentReceipt;
 import org.apache.camel.Exchange;
+import org.apache.camel.Header;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ReceiptTransformer
 {
-    public void transform(Exchange exchange)
+    public void transform(@Header("CamelFileName") String filename, Exchange exchange)
     {
+        ShipmentReceipt receipt;
         int statusCode = exchange.getIn().getHeader("validation-status", Integer.class);
         if (statusCode == 200)
         {
-            exchange.getIn().setBody("The shipment passed validation.");
+            receipt = new ShipmentReceipt(filename, "The shipment passed validation.");
         } else
         {
-            exchange.getIn().setBody("The shipment DID NOT pass validation.");
+            receipt = new ShipmentReceipt(filename, "The shipment DIT NOT pass validation.");
         }
+        exchange.getIn().setBody(receipt);
     }
 }

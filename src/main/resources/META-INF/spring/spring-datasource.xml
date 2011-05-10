@@ -15,4 +15,8 @@
     <property name="password" value="${jdbc.password}" />
   </bean>
 
+  <jdbc:initialize-database data-source="dataSource" ignore-failures="ALL">
+    <jdbc:script location="classpath:sql/tables.sql" />
+  </jdbc:initialize-database>
+
 </beans>
