@@ -20,4 +20,6 @@
 
   <context:component-scan base-package="eu.nets.camel"/>
 
+  <import resource="spring-hibernate.xml" />
+
 </beans>

@@ -1,9 +1,11 @@
 package eu.nets.camel.route;
 
+import eu.nets.camel.domain.DistributionMessageRepository;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
@@ -19,6 +21,9 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
     @Value("${nfs.dir}/inbound") private File fromDir;
     @Value("${local.dir}/inbound") private File toDir;
     @Value("${receipt.dir}") private File receiptDir;
+
+    @Autowired
+    private DistributionMessageRepository repository;
 
     @Before
     public void cleanDirs() throws Exception {
@@ -74,6 +79,10 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
         File receiptFile = new File(receiptDir, "shipment.xml");
         assertFileExists(receiptFile);
         assertThat(FileUtils.readFileToString(receiptFile)).contains("passed validation.");
+
+        Thread.sleep(10000);
+
+        assertThat(repository.getAll()).hasSize(23);
     }
 
     private void sendFile(final String classpathResource) throws Exception {

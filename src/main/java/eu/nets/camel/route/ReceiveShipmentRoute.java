@@ -1,7 +1,5 @@
 package eu.nets.camel.route;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.stereotype.Component;
 
@@ -10,14 +8,14 @@ public class ReceiveShipmentRoute extends SpringRouteBuilder
 {
     private static final String KVITTERING = "direct:kvittering";
     private static final String KVITTERING_OUT = "file:{{receipt.dir}}";
-    private static final String VALIDATED = "file:validated/";
+    private static final String VALIDATED = "direct:validated";
 
     @Override
     public void configure() throws Exception
     {
         from("file:{{nfs.dir}}/inbound").to("file:{{local.dir}}/inbound");
 
-        from("file:{{local.dir}}/inbound")
+        from("file:{{local.dir}}/inbound?preMove=./work/&move=./processed/")
                 .beanRef("shipmentValidator", "validate")
                 .multicast()
                     .to(KVITTERING)
@@ -26,6 +24,10 @@ public class ReceiveShipmentRoute extends SpringRouteBuilder
 
         from(KVITTERING).beanRef("receiptTransformer").to(KVITTERING_OUT);
 
+        from(VALIDATED)
+                .split(bean("distributionMessageSplitter", "split")).streaming()
+                .delay(70)
+                .beanRef("distributionMessageRepository", "save");
 
     }
 }
