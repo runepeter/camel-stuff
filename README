@@ -4,3 +4,5 @@ TAGS:
 2. Simple route with test and EnvironmentProperties.
 3. Added validation to route.
 4. Hibernate created but not added to route. 
+5. Pre fix kvittering med Batch component
+

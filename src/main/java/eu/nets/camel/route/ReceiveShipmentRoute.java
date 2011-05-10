@@ -7,22 +7,28 @@ import org.springframework.stereotype.Component;
 public class ReceiveShipmentRoute extends SpringRouteBuilder
 {
     private static final String KVITTERING = "direct:kvittering";
-    private static final String KVITTERING_OUT = "file:{{receipt.dir}}";
-    private static final String VALIDATED = "file:validated/";
+    private static final String KVITTERING_OUT = "file:{{receipt.dir}}?fileName=${file:name}_${date:now:yyyyMMddhhmmss}.receipt";
+    private static final String VALIDATED = "direct:validated";
 
     @Override
     public void configure() throws Exception
     {
         from("file:{{nfs.dir}}/inbound").to("file:{{local.dir}}/inbound");
 
-        from("file:{{local.dir}}/inbound?preMove=./work/&move=./processed/")
+        from("file:{{local.dir}}/inbound?move=processed/")
                 .beanRef("shipmentValidator", "validate")
                 .multicast()
                     .to(KVITTERING)
                     .filter(header("validation-status").isEqualTo(200)).to(VALIDATED)
                 .end();
 
-        from(KVITTERING).beanRef("receiptTransformer").to(KVITTERING_OUT);
+        from(KVITTERING).beanRef("receiptTransformer").log("${body}").to(KVITTERING_OUT);
+
+        from(VALIDATED)
+                .transacted()
+                .split(bean("distributionMessageSplitter", "split")).streaming()
+                .delay(70)
+                .beanRef("distributionMessageRepository", "save");
 
     }
 }
