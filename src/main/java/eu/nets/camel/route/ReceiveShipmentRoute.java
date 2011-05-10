@@ -9,6 +9,6 @@ public class ReceiveShipmentRoute extends SpringRouteBuilder
     @Override
     public void configure() throws Exception
     {
-        from("file:share/inbound").to("file:data/inbound");
+        from("file:{{nfs.dir}}/inbound").to("file:{{local.dir}}/inbound");
     }
 }

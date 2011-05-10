@@ -186,7 +186,6 @@
       <version>1.1.1</version>
     </dependency>
 
-
     <!-- Test dependencies: -->
     <dependency>
       <groupId>junit</groupId>
@@ -194,6 +193,7 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
