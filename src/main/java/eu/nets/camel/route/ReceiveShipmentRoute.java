@@ -39,8 +39,8 @@ public class ReceiveShipmentRoute extends SpringRouteBuilder
 
         from(VALIDATED)
                 .transacted()
-                .split(bean("distributionMessageSplitter", "split")).streaming()
-                .delay(70)
+                .split(bean("distributionMessageSplitter", "split")).streaming().parallelProcessing()
+                .threads(5, 10)
                 .beanRef("distributionMessageRepository", "save");
 
     }

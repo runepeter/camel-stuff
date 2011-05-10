@@ -19,7 +19,6 @@ public class DistributionMessageRepository
     }
 
     public long save(final DistributionMessage message) {
-        System.err.println("Storing...");
         hibernate.saveOrUpdate(message);
         hibernate.flush();
         hibernate.clear();

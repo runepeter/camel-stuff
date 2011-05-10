@@ -17,7 +17,7 @@ public class ReceiptTransformer
             receipt = new ShipmentReceipt(filename, "The shipment passed validation.");
         } else
         {
-            receipt = new ShipmentReceipt(filename, "The shipment DIT NOT pass validation.");
+            receipt = new ShipmentReceipt(filename, "The shipment DID NOT pass validation.");
         }
         exchange.getIn().setBody(receipt);
     }

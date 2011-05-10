@@ -18,6 +18,7 @@ public class ShipmentReceiptRepository
 
     public String save(ShipmentReceipt receipt)
     {
+        System.err.println("Storing receipt for file '" + receipt.getFilename() + "'.");
         hibernate.save(receipt);
         hibernate.flush();
         hibernate.clear();

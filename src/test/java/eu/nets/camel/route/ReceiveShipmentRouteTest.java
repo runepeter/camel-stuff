@@ -15,7 +15,6 @@ import java.net.URL;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-@Ignore
 @ContextConfiguration(locations = "classpath:META-INF/spring/spring-context.xml")
 public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
 {
@@ -67,9 +66,9 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
 
         FileUtils.moveFileToDirectory(file, toDir, false);
 
-        File receiptFile = new File(receiptDir, "jalla.txt");
-        assertFileExists(receiptFile);
-        assertThat(FileUtils.readFileToString(receiptFile)).contains("DID NOT pass validation.");
+        Thread.sleep(2500);
+        assertThat(receiptDir.listFiles()).isNotNull().hasSize(1);
+        assertThat(FileUtils.readFileToString(receiptDir.listFiles()[0])).contains("DID NOT pass validation.");
     }
 
     @Test
@@ -77,15 +76,13 @@ public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
 
         sendFile("testdata/shipment.xml");
 
-        File receiptFile = new File(receiptDir, "shipment.xml");
-        assertFileExists(receiptFile);
-        assertThat(FileUtils.readFileToString(receiptFile)).contains("passed validation.");
+        Thread.sleep(2500);
 
-        Thread.sleep(10000);
-
-        assertThat(repository.getAll()).hasSize(23);
+        assertThat(receiptDir.listFiles()).isNotNull().hasSize(1);
+        assertThat(FileUtils.readFileToString(receiptDir.listFiles()[0])).contains("passed validation.");
+        assertThat(repository.getAll()).hasSize(150);
     }
-
+    
     private void sendFile(final String classpathResource) throws Exception {
 
         URL url = getClass().getClassLoader().getResource(classpathResource);
