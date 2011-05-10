@@ -15,6 +15,7 @@ import java.net.URL;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 @ContextConfiguration(locations = "classpath:META-INF/spring/spring-context.xml")
 public class ReceiveShipmentRouteTest extends AbstractJUnit4SpringContextTests
 {

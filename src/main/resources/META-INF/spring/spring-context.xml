@@ -10,9 +10,9 @@
        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-  <bean id="environment" class="eu.nets.camel.EnvironmentProperties" />
-  <context:property-placeholder properties-ref="environment" />
+  <context:property-placeholder location="classpath:environment.properties" />
 
+  <bean id="environment" class="eu.nets.camel.EnvironmentProperties" />
   <camel:camelContext id="camelContext">
     <camel:propertyPlaceholder id="properties" location="ref:environment"/>
     <camel:routeBuilder ref="receiveShipmentRoute" />
