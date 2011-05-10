@@ -8,4 +8,5 @@ TAGS:
 6. Batch component for kvittering
 7. Happy case threads
 8. Failing tests because of threading.
-9.  
+9. Threads at the beginning of TX
+  
