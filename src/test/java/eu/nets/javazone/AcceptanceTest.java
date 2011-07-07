@@ -26,20 +26,25 @@ public class AcceptanceTest extends CamelTestSupport {
         clearing.expectedMessageCount(1);
         receipt.expectedMessageCount(1);
 
-        template.sendBody("file:data/receive", createPaymentFile(5));
+        template.sendBody(PaymentRoute.ENDPOINT_RECEIVE, createPaymentFile(5));
 
-        balance.assertIsSatisfied();
-        clearing.assertIsSatisfied();
         receipt.assertIsSatisfied();
+        clearing.assertIsSatisfied();
+        balance.assertIsSatisfied();
+
     }
+
 
 
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
+
         RouteBuilder rb = new PaymentRoute();
+
         rb.interceptSendToEndpoint(PaymentRoute.ENDPOINT_CLEARING).to(clearing);
         rb.interceptSendToEndpoint(PaymentRoute.ENDPOINT_BALANCE).to(balance);
         rb.interceptSendToEndpoint(PaymentRoute.ENDPOINT_RECEIPT).to(receipt);
+
         return rb;
     }
 
