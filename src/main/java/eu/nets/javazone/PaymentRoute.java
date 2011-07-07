@@ -10,13 +10,14 @@ public class PaymentRoute extends RouteBuilder {
     public static final String ENDPOINT_CLEARING = "direct:clearing";
     public static final String ENDPOINT_BALANCE = "direct:balance";
     public static final String ENDPOINT_RECEIPT = "direct:receipt";
-    public static final String ENDPOINT_RECEIVE = "file:data/receive";
+    public static final String ENDPOINT_RECEIVE = "direct:data/receive";
 
     @Override
     public void configure() throws Exception {
         from(ENDPOINT_RECEIVE)
-                .to(ENDPOINT_RECEIPT)
+                .inOnly(ENDPOINT_RECEIPT)
                 .split(body(String.class).tokenize("\n"))
+                .threads(10)
                 .to(ENDPOINT_BALANCE)
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
                 .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(property("CamelSplitSize"))
@@ -36,6 +37,7 @@ public class PaymentRoute extends RouteBuilder {
             @Override
             public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
                 Exchange aggregate = super.aggregate(oldExchange, newExchange);
+                System.err.println(Thread.currentThread() + " -> " + aggregate.hashCode());
                 aggregate.setProperty("CamelSplitSize", newExchange.getProperty("CamelSplitSize"));
                 return aggregate;
             }
