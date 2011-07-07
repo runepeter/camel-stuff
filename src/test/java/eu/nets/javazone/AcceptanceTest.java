@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 public class AcceptanceTest extends CamelTestSupport {
 
@@ -31,6 +32,19 @@ public class AcceptanceTest extends CamelTestSupport {
         receipt.assertIsSatisfied();
         balance.assertIsSatisfied();
         clearing.assertIsSatisfied(40000);
+    }
+
+    @Test
+    public void testReceive100PaymentsIn20seconds() throws Exception {
+        balance.expectedMessageCount(100);
+        clearing.expectedMessageCount(1);
+        receipt.expectedMessageCount(1);
+
+        template.sendBody(PaymentRoute.ENDPOINT_RECEIVE, createPaymentFile(100));
+
+        receipt.assertIsSatisfied();
+        balance.assertIsSatisfied();
+        clearing.assertIsSatisfied(20, TimeUnit.SECONDS);
     }
 
     @Override
