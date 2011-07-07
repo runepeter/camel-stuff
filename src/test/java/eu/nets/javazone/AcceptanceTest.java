@@ -29,12 +29,9 @@ public class AcceptanceTest extends CamelTestSupport {
         template.sendBody(PaymentRoute.ENDPOINT_RECEIVE, createPaymentFile(5));
 
         receipt.assertIsSatisfied();
-        clearing.assertIsSatisfied();
         balance.assertIsSatisfied();
-
+        clearing.assertIsSatisfied(40000);
     }
-
-
 
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {

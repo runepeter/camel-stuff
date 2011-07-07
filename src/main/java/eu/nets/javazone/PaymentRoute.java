@@ -1,6 +1,9 @@
 package eu.nets.javazone;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.processor.aggregate.AggregationStrategy;
+import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
 
 public class PaymentRoute extends RouteBuilder {
 
@@ -16,15 +19,27 @@ public class PaymentRoute extends RouteBuilder {
                 .split(body(String.class).tokenize("\n"))
                 .to(ENDPOINT_BALANCE)
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(constant("*")).groupExchanges().completionTimeout(200)
+                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(property("CamelSplitSize"))
                 .to(ENDPOINT_CLEARING);
 
 
-        from(ENDPOINT_BALANCE).setHeader("BALANCE_CHECK").constant("OK").log("balance called");
+        from(ENDPOINT_BALANCE).delay(1500).setHeader("BALANCE_CHECK").constant("OK").log("balance called");
 
         from(ENDPOINT_RECEIPT).log("receipt called");
 
         from(ENDPOINT_CLEARING).log("clearing called");
 
     }
+
+    public static AggregationStrategy groupExchanges() {
+        return new GroupedExchangeAggregationStrategy() {
+            @Override
+            public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
+                Exchange aggregate = super.aggregate(oldExchange, newExchange);
+                aggregate.setProperty("CamelSplitSize", newExchange.getProperty("CamelSplitSize"));
+                return aggregate;
+            }
+        };
+    }
+
 }
