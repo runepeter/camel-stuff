@@ -17,7 +17,7 @@ public class PaymentRoute extends RouteBuilder {
         from(ENDPOINT_RECEIVE)
                 .inOnly(ENDPOINT_RECEIPT)
                 .split(body(String.class).tokenize("\n"))
-                .threads(10)
+                .parallelProcessing().threads(10)
                 .to(ENDPOINT_BALANCE)
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
                 .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(property("CamelSplitSize"))
