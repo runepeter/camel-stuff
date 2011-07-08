@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://www.nets.eu/nets-share/shipment/1.0" xmlns="http://www.nets.eu/nets-share/shipment/1.0">
+
+    <!-- ################################################################## -->
+    <!-- -->
+    <!-- Nets Share Shipment XML Schema -->
+    <!-- -->
+    <!-- When distributing documents through Nets Share, a document is -->
+    <!-- represented as a Message. -->
+    <!-- -->
+    <!-- Nets Share accepts a Shipment of Messages originating from the -->
+    <!-- same sender corporation. -->
+    <!-- -->
+    <!-- A Shipment is described as an XML document that can be validated -->
+    <!-- against THIS XML Schema. -->
+    <!-- -->
+    <!-- A Shipment can be in the form of a ZIP file. In this case the -->
+    <!-- ZIP file contains a file shipment.xml, which validates against -->
+    <!-- THIS XML Schema. All Messages of the Shipment are included as -->
+    <!-- files inside the ZIP file. -->
+    <!-- -->
+    <!-- ################################################################## -->
+
+    <xs:annotation>
+        <xs:documentation xml:lang="en">
+            Nets Share Shipment schema.
+            2010 Nets Norway AS
+
+            !!!! THIS DOCUMENT IS A
+            DRAFT - SUBJECT TO FREQUENT CHANGES !!!!
+        </xs:documentation>
+    </xs:annotation>
+
+    <!-- ################################################################## -->
+    <!-- -->
+    <!-- Representation of a Shipment. -->
+    <!-- -->
+    <!-- The <shipment> element contains information about the corporation -->
+    <!-- responsible for sending the Shipment, in addition to the Messages -->
+    <!-- contained in the Shipment. -->
+    <!-- -->
+    <!-- ################################################################## -->
+    <xs:element name="shipment">
+        <xs:complexType>
+            <xs:sequence>
+
+                <!-- ################################################################## -->
+                <!-- -->
+                <!-- The <shipmentInfo> element contains information about the sender -->
+                <!-- corporation. -->
+                <!-- -->
+                <!-- !!!! Currently only limited information can be described in this -->
+                <!-- element. This, however, is something that is subject to change. -->
+                <!-- -->
+                <!-- ################################################################## -->
+
+                <xs:element name="shipmentInfo" type="ShipmentInfoType" minOccurs="1" maxOccurs="1" />
+
+                <!-- The <messages> element contains all Messages contained in this Shipment. -->
+                <xs:element name="messages" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="message" type="MessageType" minOccurs="0" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                    <!-- id must be unique -->
+                    <xs:unique name="messageId">
+                        <xs:selector xpath="message" />
+                        <xs:field xpath="@id" />
+                    </xs:unique>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- ################################################################## -->
+    <!-- This element wraps a message that is to be returned to the sender. -->
+    <!-- ################################################################## -->
+    <xs:element name="return">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="shipmentInfo" type="ShipmentInfoType" minOccurs="1" maxOccurs="1" />
+                <xs:element name="message" type="MessageType" minOccurs="1" maxOccurs="1" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="ShipmentInfoType">
+        <xs:all>
+
+            <!-- A unique identification of the Shipment. This value is used when tracking a -->
+            <!-- Shipment, as well as for preventing the same Shipment for being processed -->
+            <!-- more than once. -->
+            <xs:element name="shipmentId" minOccurs="1" maxOccurs="1">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="([0-9a-zA-Z])+" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!-- Information about the sending corporation. -->
+            <xs:element name="sender">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="corporateIdentityNumber" type="xs:token" minOccurs="1" />
+                        <xs:element name="country" type="CountryCode" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+
+
+    <!-- ################################################################## -->
+    <!-- -->
+    <!-- The <message> element describes a single Message contained inside -->
+    <!-- a Shipment. MessageType descibes the structure of the <message> -->
+    <!-- element. -->
+    <!-- -->
+    <!-- A <message> element contains an identifier that uniquely identifies -->
+    <!-- a message INSIDE a Shipment. -->
+    <!-- -->
+    <!-- A <message> element contains information about the recipient of -->
+    <!-- the message, for example, addressing information. -->
+    <!-- -->
+    <!-- A <message> element refers to a physical file, which the Message -->
+    <!-- represents. This file is the actual target of the distribution. -->
+    <!-- The element also contains information about the type of the content -->
+    <!-- of the physical file. -->
+    <!-- -->
+    <!-- ################################################################## -->
+    <xs:complexType name="MessageType">
+        <xs:sequence>
+            <!-- If message is sendt on behalf of somebody else this tag can be used to specify the real sender -->
+            <xs:element name="sender" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="senderName" type="xs:string" minOccurs="1" maxOccurs="1" />
+                        <!-- Organisasjonsnummer: -->
+                        <xs:element name="senderId" type="xs:string" minOccurs="1" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="receiver" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence minOccurs="1" maxOccurs="1">
+                        <xs:element name="eboks" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="type" type="NotEmptyStringWithSpace" minOccurs="1" maxOccurs="1" />
+                                    <xs:sequence minOccurs="1" maxOccurs="1">
+                                        <xs:choice>
+                                            <xs:element name="personIdentityNumber" type="NotEmptyStringWithSpace" />
+                                            <xs:element name="aliasIdentityNumber" type="NotEmptyStringWithSpace" />
+                                        </xs:choice>
+                                    </xs:sequence>
+                                    <xs:element name="eboksCustomerNumber" type="NotEmptyStringWithSpace" minOccurs="1" maxOccurs="1" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="print" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="name" type="NotEmptyStringWithSpace" minOccurs="1" maxOccurs="1" />
+                                    <xs:element name="addressline1" type="xs:string" minOccurs="0" maxOccurs="1" />
+                                    <xs:element name="addressline2" type="xs:string" minOccurs="0" maxOccurs="1" />
+                                    <xs:element name="addressline3" type="xs:string" minOccurs="0" maxOccurs="1" />
+                                    <xs:element name="postalCode" type="NotEmptyStringWithSpace" minOccurs="1" maxOccurs="1" />
+                                    <xs:element name="city" type="xs:string" minOccurs="0" maxOccurs="1" />
+                                    <xs:element name="country" type="NotEmptyStringWithSpace" minOccurs="1" maxOccurs="1" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Represents the physical document/file that is the target of the distribution. If the Shipment is a ZIP file, then
+                   the element will reference a file inside the ZIP file. -->
+            <xs:element name="document" minOccurs="1">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="filepath" type="xs:string" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <!-- Rules for setting specific routing for this message -->
+            <xs:element name="routing" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="channel" type="RoutingType" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:pattern value="([0-9a-zA-Z])+" />
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <!-- ################################################################## -->
+    <!-- -->
+    <!-- Specification for destinations to send the message to. -->
+    <!-- This spesification overrides the default settings for the system -->
+    <!-- The system will first try to send to the channel with the lowest number in the priority attribute -->
+    <!-- If it is not possible to send to the preferred channel, the next one will be tried -->
+    <!-- -->
+    <!-- It is possible to multicast messages by declaring multiple destinations for one channel -->
+    <!-- -->
+    <!-- ################################################################## -->
+    <xs:complexType name="RoutingType">
+        <xs:sequence>
+            <xs:element name="destination" type="ChannelType" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="priority" use="required" type="xs:int" />
+    </xs:complexType>
+
+    <xs:simpleType name="ChannelType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="print" />
+            <xs:enumeration value="eboks" />
+            <xs:enumeration value="retur" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="CountryCode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="NO" />
+            <xs:enumeration value="DK" />
+            <xs:enumeration value="SE" />
+            <xs:enumeration value="FI" />
+            <xs:enumeration value="OTHER" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="NotEmptyStringWithSpace">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1" />
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

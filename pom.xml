@@ -60,6 +60,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+      <version>1.4</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
       <version>${camel.version}</version>
@@ -131,6 +136,16 @@
       <version>${spring.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>3.4.0.GA</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb-j5</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+    <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
       <version>2.2</version>
@@ -192,7 +207,6 @@
       <version>1.1.1</version>
     </dependency>
 
-
     <!-- Test dependencies: -->
     <dependency>
       <groupId>junit</groupId>
@@ -200,6 +214,7 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
