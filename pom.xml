@@ -8,7 +8,7 @@
     <groupId>eu.nets.camel</groupId>
     <artifactId>camel-stuff</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>Nets :: Camel Stuff</name>
 
@@ -137,8 +137,8 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>3.4.0.GA</version>
+            <artifactId>hibernate-core</artifactId>
+            <version>3.6.4.Final</version>
         </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>
@@ -269,7 +269,26 @@
                 </configuration>
             </plugin>
 
-
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>maven-jetty-plugin</artifactId>
+                <version>${jetty.version}</version>
+                <configuration>
+                    <scanIntervalSeconds>10</scanIntervalSeconds>
+                    <stopKey>foo</stopKey>
+                    <stopPort>9999</stopPort>
+                    <jettyEnvXml>src/test/resources/jetty-env.xml</jettyEnvXml>
+                    <systemProperties>
+                        <systemProperty>
+                            <name>log4j.configuration</name>
+                            <value>file:./target/test-classes/log4j.xml</value>
+                        </systemProperty>
+                    </systemProperties>
+                </configuration>
+                <!-- <executions> <execution> <id>start-jetty</id> <phase>pre-integration-test</phase> <goals> <goal>run</goal> </goals>
+                        <configuration> <scanIntervalSeconds>0</scanIntervalSeconds> <daemon>true</daemon> </configuration> </execution> <execution>
+                        <id>stop-jetty</id> <phase>post-integration-test</phase> <goals> <goal>stop</goal> </goals> </execution> </executions> -->
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
