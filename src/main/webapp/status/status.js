@@ -57,7 +57,7 @@ function updateCounters() {
 function updateCSMTable() {
     $('#instructionsdiv').show();
 
-    jsonUrl = "/service/transactions/";
+    jsonUrl = "/service/transaction/";
 
     $.getJSON(jsonUrl, function(data) {
         $.each(data.list, function(i, item) {
@@ -66,28 +66,10 @@ function updateCSMTable() {
                 listTransactionItems(item, this)
             })
                     .append($('<td>').text(item.id))
-                    .append($('<td>').text(item.paymentId!=null?item.paymentId:""))
-                    .append($('<td>').text(item.paymentPosition!=null?item.paymentPosition:""))
-                    .append($('<td>').text(item.paymentType!=null?item.paymentType:""))
-                    .append($('<td>').text(item.initiatorService!=null?item.initiatorService:""))
-                    .append($('<td>').text(item.paymentDate!=null?item.paymentDate.$:""))
-                    .append($('<td>').text(item.debetAccount!=null?item.debetAccount.accountNumber:""))
-                    .append($('<td>').text(item.creditAccount!=null?item.creditAccount.accountNumber:""))
+                    .append($('<td>').text(item.debetAccount!=null?item.debetAccount:""))
+                    .append($('<td>').text(item.creditAccount!=null?item.creditAccount:""))
                     .append($('<td>').text(item.amount!=null?item.amount:""))
-                    .append($('<td>').text(item.numberOfTransactions!=null?item.numberOfTransactions:""))
-                    .append($('<td>').text(item.currency!=null?item.currency:""))
-                    .append($('<td>').text(item.paymentFlow!=null?item.paymentFlow:""))
-                    .append($('<td>').text(item.clearing!=null?item.clearing:""))
-                    .append($('<td>').text(" Se > ")
-                    .click(
-                    function() {
-                        window.open("/service/payment/"+item.id+"/raw");
-                    }))
-                     .append($('<td>').text(" Se > ")
-                    .click(
-                    function() {
-                        window.open("/service/payment/"+item.id+"/xml");
-                    })))
+                    .append($('<td>').text(item.currency!=null?item.currency:"")))
         });
     });
     jsonUrl = null;

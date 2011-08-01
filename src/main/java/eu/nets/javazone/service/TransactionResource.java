@@ -4,7 +4,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.json.JsonWriter;
-import eu.nets.javazone.domain.Fil;
+import eu.nets.javazone.domain.Transaction;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,23 +18,23 @@ import java.io.Writer;
 import java.util.List;
 
 @Controller
-@RequestMapping("fil/")
+@RequestMapping("transaction/")
 @Transactional
-public class FilResource {
+public class TransactionResource {
 
-     @Autowired
+        @Autowired
     private SessionFactory sessionFactory;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public String getFiler() {
+    public String getTransactions() {
         StringBuilder builder = new StringBuilder("[");
-        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Fil.class);
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Transaction.class);
 
-        List<Fil> list = criteria.list();
+        List<Transaction> list = criteria.list();
 
-        for (Fil fil : list) {
-            String json = toJson(fil);
+        for (Transaction transaction : list) {
+            String json = toJson(transaction);
             builder.append(json);
 
         }
@@ -44,7 +44,7 @@ public class FilResource {
     }
 
 
-    private String toJson(Fil fil) {
+    private String toJson(Transaction transaction) {
         XStream xstream = new XStream(new JsonHierarchicalStreamDriver() {
             @Override
             public HierarchicalStreamWriter createWriter(Writer writer) {
@@ -53,7 +53,6 @@ public class FilResource {
         });
 
         xstream.setMode(XStream.ID_REFERENCES);
-        return xstream.toXML(fil);
+        return xstream.toXML(transaction);
     }
-
 }

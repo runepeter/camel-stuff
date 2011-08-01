@@ -1,18 +1,18 @@
 package eu.nets.javazone.service;
 
-import eu.nets.javazone.domain.Fil;
-import org.apache.commons.io.IOUtils;
+
+import eu.nets.javazone.domain.Transaction;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
-@Component
-public class FileReceiver {
+public class CSMInsert {
 
-    @Autowired
+      @Autowired
     private SessionFactory sessionFactory;
 
 
@@ -39,21 +39,23 @@ public class FileReceiver {
     }
 
     private void insert(InputStream inputStream, String fileName) {
-        Fil interchange = parseFrom(inputStream, fileName);
-        sessionFactory.getCurrentSession().saveOrUpdate(interchange);
-    }
-
-    private Fil parseFrom(InputStream inputStream, String originalFileName) {
-        Fil fil = new Fil();
-        fil.setOriginalFilename(originalFileName);
-        try {
-            fil.setContent(IOUtils.toString(inputStream));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        List<Transaction> transactions = parseFrom(inputStream, fileName);
+        for (Transaction transaction : transactions) {
+            sessionFactory.getCurrentSession().saveOrUpdate(transaction);
         }
-        //  fil.setReceivedDateTime(new Date());
-        return fil;
     }
 
+    private List<Transaction> parseFrom(InputStream inputStream, String originalFileName) {
+        // todo: faker en trans..
 
+        Transaction transaction = new Transaction();
+        transaction.setCreditAccount("123");
+        transaction.setDebetAccount("321");
+        transaction.setAmount("12");
+        transaction.setCreditorName("Bjørn");
+        transaction.setCurrency("NOK");
+        ArrayList arrayList = new ArrayList();
+        arrayList.add(transaction);
+        return arrayList;
+    }
 }

@@ -1,5 +1,6 @@
 package eu.nets.javazone.route;
 
+import eu.nets.javazone.service.CSMInsert;
 import eu.nets.javazone.service.FileReceiver;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
@@ -11,7 +12,7 @@ public class PaymentRoute extends RouteBuilder {
     public static final String ENDPOINT_CLEARING = "direct:clearing";
     public static final String ENDPOINT_BALANCE = "direct:balance";
     public static final String ENDPOINT_RECEIPT = "direct:receipt";
-    public static final String ENDPOINT_RECEIVE = "direct:data/receive";
+    public static final String ENDPOINT_RECEIVE = "direct:receive";
 
     @Override
     public void configure() throws Exception {
@@ -31,7 +32,7 @@ public class PaymentRoute extends RouteBuilder {
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
 
-        from(ENDPOINT_CLEARING).routeId("clearing").log("clearing called");
+        from(ENDPOINT_CLEARING).routeId("clearing").log("clearing called").bean(CSMInsert.class);
 
     }
 
