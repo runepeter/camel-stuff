@@ -1,5 +1,6 @@
 package eu.nets.javazone.route;
 
+import eu.nets.javazone.service.FileReceiver;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
@@ -17,6 +18,7 @@ public class PaymentRoute extends RouteBuilder {
         from(ENDPOINT_RECEIVE)
                 .routeId("receive")
                 .inOnly(ENDPOINT_RECEIPT)
+                .bean(FileReceiver.class)
                 .split(body(String.class).tokenize("\n"))
                 .parallelProcessing().threads(10)
                 .to(ENDPOINT_BALANCE)
