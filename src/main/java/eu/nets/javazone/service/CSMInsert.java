@@ -4,39 +4,34 @@ package eu.nets.javazone.service;
 import eu.nets.javazone.domain.Transaction;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CSMInsert {
 
-      @Autowired
+    @Autowired
     private SessionFactory sessionFactory;
 
 
     public void insert(MultipartFile file) {
         InputStream inputStream = null;
-        try {
-            inputStream = file.getInputStream();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        String originalFileName = "";
+        if (file != null) {
+            try {
+                inputStream = file.getInputStream();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            originalFileName = file.getName();
         }
-        String originalFileName = file.getName();
         insert(inputStream, originalFileName);
     }
 
-    public void insert(File file) {
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        String originalFileName = file.getName();
-        insert(inputStream, originalFileName);
-    }
 
     private void insert(InputStream inputStream, String fileName) {
         List<Transaction> transactions = parseFrom(inputStream, fileName);

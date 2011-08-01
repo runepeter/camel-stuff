@@ -3,7 +3,7 @@ $(document).ready(function() {
     $("#tabs").tabs();
     updateFilTable();
     updateCounters();
-    //updateCSMTable();
+    updateCSMTable();
     setTimeout('refreshPage();', 300000);
 });
 
@@ -27,10 +27,16 @@ function updateFilTable() {
     jsonUrl = null;
 }
 
+
+function updateCounters() {
+    message("route=receipt&attribute=ExchangesCompleted", "receiptCount");
+    message("route=balance&attribute=ExchangesCompleted", "balanceCount");
+    message("route=receipt&attribute=ExchangesCompleted", "clearingCount");
+    setTimeout("updateCounters()", 10000);
+}
+
 function message(requestString, id) {
-
     var http = new XMLHttpRequest();
-
     http.open("GET", "../service/jmxrest?" + requestString, true);
     http.onreadystatechange = function() {
         if (http.readyState == 4) {
@@ -41,30 +47,12 @@ function message(requestString, id) {
 }
 
 
-
-
-
-function updateCounters() {
-    message("route=receipt&attribute=ExchangesCompleted", "receiptCount");
-    message("route=balance&attribute=ExchangesCompleted", "balanceCount");
-    message("route=receipt&attribute=ExchangesCompleted", "clearingCount");
-    setTimeout("updateCounters()", 10000);
-}
-
-
-
-
 function updateCSMTable() {
-    $('#instructionsdiv').show();
-
     jsonUrl = "/service/transaction/";
 
     $.getJSON(jsonUrl, function(data) {
-        $.each(data.list, function(i, item) {
+        $.each(data, function(i, item) {
             $('#paymentTableContent').append($('<tr>')
-                    .click(function() {
-                listTransactionItems(item, this)
-            })
                     .append($('<td>').text(item.id))
                     .append($('<td>').text(item.debetAccount!=null?item.debetAccount:""))
                     .append($('<td>').text(item.creditAccount!=null?item.creditAccount:""))

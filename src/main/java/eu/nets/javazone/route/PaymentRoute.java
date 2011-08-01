@@ -18,6 +18,7 @@ public class PaymentRoute extends RouteBuilder {
     public void configure() throws Exception {
         from(ENDPOINT_RECEIVE)
                 .routeId("receive")
+                .transacted()
                 .inOnly(ENDPOINT_RECEIPT)
                 .bean(FileReceiver.class)
                 .split(body(String.class).tokenize("\n"))
