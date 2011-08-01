@@ -1,11 +1,8 @@
 
 $(document).ready(function() {
     $("#tabs").tabs();
-   // $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd'});
-    $( "#datepickerInterchanges" ).datepicker({dateFormat: 'yy-mm-dd'});
-    $("#datepickerInterchanges").datepicker('setDate', new Date());
     updateInterchangesTable();
-    updateCharts();
+    updateAll();
     setTimeout('refreshPage();', 300000);
 });
 
@@ -14,7 +11,7 @@ function refreshPage() {
 }
 
 function updateInterchangesTable() {
-    $('#instructionsdiv').hide();
+   /* $('#instructionsdiv').hide();
     $('#paymentTableContent').empty();
     $('#transactionsTableContent').empty();
     $('#transactionsdiv').hide();
@@ -23,13 +20,7 @@ function updateInterchangesTable() {
     $('#paymentTableContent').empty();
     $('#interchangeTableContent').empty();
 
-    dato = $('#datepickerInterchanges').val();
     jsonUrl = "/service/interchange/";
-    if (dato != null) {
-        jsonUrl += "?dato="+dato;
-    }
-    service = $("#serviceFilter").val();
-    jsonUrl += "&serviceFilter=" + service;
     $.getJSON(jsonUrl, function(data) {
         $.each(data, function(i, item) {
             $('#interchangeTableContent').append($('<tr>')
@@ -38,24 +29,36 @@ function updateInterchangesTable() {
             })
                     .append($('<td>').text(item.id))
                     .append($('<td>').text(item.originalFilename!=null?item.originalFilename:""))
-                    .append($('<td>').text(item.initiatorService!=null?item.initiatorService:""))
                     .append($('<td>').text(item.numberOfInstructions!=null?item.numberOfInstructions:""))
-                    .append($('<td>').text(item.creationDateTime!=null?item.creationDateTime.$:""))
-                    .append($('<td>').text(" Se > ")
-                    .click(
-                    function() {
-                        window.open("/service/interchange/"+item.id+"/raw");
-                    }))
-                     .append($('<td>').text(" Se > ")
-                    .click(
-                    function() {
-                        window.open("/service/interchange/"+item.id+"/xml");
-                    })))
+                    .append($('<td>').text(item.creationDateTime!=null?item.creationDateTime.$:"")))
         });
     });
-
-    dato = null;
+    */
     jsonUrl = null;
+}
+
+function message(requestString, id) {
+
+    var http = new XMLHttpRequest();
+
+    http.open("GET", "../service/jmxrest?" + requestString, true);
+    http.onreadystatechange = function() {
+        if (http.readyState == 4) {
+            document.getElementById(id).innerHTML = http.responseText;
+        }
+    };
+    http.send(null);
+}
+
+
+
+
+
+function updateAll() {
+    message("route=receipt&attribute=ExchangesCompleted", "receiptCount");
+    message("route=balance&attribute=ExchangesCompleted", "balanceCount");
+    message("route=receipt&attribute=ExchangesCompleted", "clearingCount");
+    setTimeout("updateAll()", 10000);
 }
 
 function listPaymentItems(item, listWebElement) {

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<!-- (tip) Turn off Hibernate, HSQLDB and Spring warning or info message. -->
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false" threshold="info">
+    <appender name="A1" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ISO8601} [%t] %-5p %c{1}::%M - %m%n"/>
+        </layout>
+    </appender>
+
+    <logger name="eu.nets" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="A1"/>
+    </logger>
+
+    <logger name="org.springframework" additivity="true">
+        <level value="warn"/>
+        <appender-ref ref="A1"/>
+    </logger>
+
+    <logger name="org.apache.camel" additivity="true">
+        <level value="warn"/>
+        <appender-ref ref="A1"/>
+    </logger>
+
+    <!-- Note: This root logger will be inherited by all loggers unless you use additivity="false". -->
+    <root>
+        <level value="warn"/>
+        <appender-ref ref="A1"/>
+    </root>
+</log4j:configuration>

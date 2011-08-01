@@ -1,5 +1,6 @@
 package eu.nets.javazone;
 
+import eu.nets.javazone.route.PaymentRoute;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;

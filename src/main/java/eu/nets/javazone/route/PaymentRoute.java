@@ -1,4 +1,4 @@
-package eu.nets.javazone;
+package eu.nets.javazone.route;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
@@ -15,6 +15,7 @@ public class PaymentRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         from(ENDPOINT_RECEIVE)
+                .routeId("receive")
                 .inOnly(ENDPOINT_RECEIPT)
                 .split(body(String.class).tokenize("\n"))
                 .parallelProcessing().threads(10)
@@ -24,11 +25,11 @@ public class PaymentRoute extends RouteBuilder {
                 .to(ENDPOINT_CLEARING);
 
 
-        from(ENDPOINT_BALANCE).delay(1500).setHeader("BALANCE_CHECK").constant("OK").log("balance called");
+        from(ENDPOINT_BALANCE).routeId("balance").delay(1500).setHeader("BALANCE_CHECK").constant("OK").log("balance called");
 
-        from(ENDPOINT_RECEIPT).log("receipt called");
+        from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
 
-        from(ENDPOINT_CLEARING).log("clearing called");
+        from(ENDPOINT_CLEARING).routeId("clearing").log("clearing called");
 
     }
 
