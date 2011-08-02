@@ -29,6 +29,7 @@ function updateFilTable() {
 
 
 function updateCounters() {
+    message("route=receive&attribute=ExchangesCompleted", "receivedCount");
     message("route=receipt&attribute=ExchangesCompleted", "receiptCount");
     message("route=balance&attribute=ExchangesCompleted", "balanceCount");
     message("route=receipt&attribute=ExchangesCompleted", "clearingCount");

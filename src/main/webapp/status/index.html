@@ -18,26 +18,22 @@
         <img class="logo" src="images/nets-logo.gif"/>
 
         <div class="title">Nets Payment</div>
+
     </div>
 
     <div id="tabs">
         <ul>
             <li><a href="#paymentsDiv" onclick="updateCSMTable();">Payments</a></li>
+            <li><a href="#adminDiv" onclick="updateCSMTable();">Admin</a></li>
         </ul>
 
         <div id="info_span"></div>
         <div id="paymentsDiv">
             <div class="ui-widget" style="margin-bottom: 20px;">
-                <!-- <div class="ui-widget-header ui-corner-top">Interchanges</div>-->
+                <div class="ui-widget-header ui-corner-top">Files</div>
 
                 <div class="ui-widget-content" id="interchangeContentDiv">
 
-                    <div align="right">
-                        <form id="myForm" action="/service/upload/" method="post" enctype="multipart/form-data">
-                            <input type="file" name="file" id="file"/>
-                            <input type="submit" value="Upload File" onclick="fileUpload();" />
-                        </form>
-                    </div>
                     <table class="collapse" style="width: 100%; background: transparent;">
                         <thead class="ui-widget-header" style="text-align: left;">
                         <tr>
@@ -52,36 +48,7 @@
                 </div>
             </div>
 
-            <div id="countersDiv" style="margin-bottom: 15px;">
-                <table style="width: 100%;height: 150px;" >
-                    <tr>
-                        <td>
-                            <div id="receiptCounterDiv" class="ui-widget" style="margin: 15px">
-                                <div class="ui-widget-header ui-corner-top">Receipt</div>
-                                <div class="ui-widget-content">
-                                    <h1><div id="receiptCount"></div></h1>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div id="balanceCounterDiv" class="ui-widget" style="margin: 15px">
-                                <div class="ui-widget-header ui-corner-top">Balance</div>
-                                <div class="ui-widget-content">
-                                    <h1><div id="balanceCount"></div></h1>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div id="clearingCounterDiv" class="ui-widget" style="margin: 15px">
-                                <div class="ui-widget-header ui-corner-top">Clearing</div>
-                                <div class="ui-widget-content">
-                                    <h1><div id="clearingCount"></div></h1>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+
 
 
             <div class="ui-widget" id="transactionsDiv">
@@ -105,7 +72,54 @@
             </div>
 
         </div>
+        <div id="adminDiv">
+            <div align="right">
+                <form id="myForm" action="/service/upload/" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" id="file"/>
+                    <input type="submit" value="Upload File" onclick="fileUpload();" />
+                </form>
+            </div>
 
+
+            <div id="countersDiv" style="margin-bottom: 15px;">
+                <table style="width: 100%;height: 150px;" >
+                    <tr>
+                         <td>
+                            <div id="receivedCounterDiv" class="ui-widget" style="margin: 15px">
+                                <div class="ui-widget-header ui-corner-top">Files</div>
+                                <div class="ui-widget-content">
+                                    <h1><div id="receivedCount"></div></h1>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div id="receiptCounterDiv" class="ui-widget" style="margin: 15px">
+                                <div class="ui-widget-header ui-corner-top">Receipts</div>
+                                <div class="ui-widget-content">
+                                    <h1><div id="receiptCount"></div></h1>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div id="balanceCounterDiv" class="ui-widget" style="margin: 15px">
+                                <div class="ui-widget-header ui-corner-top">Balance checks</div>
+                                <div class="ui-widget-content">
+                                    <h1><div id="balanceCount"></div></h1>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div id="clearingCounterDiv" class="ui-widget" style="margin: 15px">
+                                <div class="ui-widget-header ui-corner-top">Sendt to clearing</div>
+                                <div class="ui-widget-content">
+                                    <h1><div id="clearingCount"></div></h1>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
 
     </div>
 </div>
