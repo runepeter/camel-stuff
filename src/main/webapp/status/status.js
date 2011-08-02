@@ -12,6 +12,7 @@ function refreshPage() {
 }
 
 function updateFilTable() {
+    $("#interchangeTableContent").empty();
 
     jsonUrl = "/service/fil/";
     $.getJSON(jsonUrl, function(data) {
@@ -49,6 +50,7 @@ function message(requestString, id) {
 
 
 function updateCSMTable() {
+    $("#paymentTableContent").empty();
     jsonUrl = "/service/transaction/";
 
     $.getJSON(jsonUrl, function(data) {
