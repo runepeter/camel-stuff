@@ -20,16 +20,17 @@ public class PaymentRoute extends RouteBuilder {
                 .routeId("receive")
                 .transacted()
                 .inOnly(ENDPOINT_RECEIPT)
-                .bean(FileReceiver.class)
+                .beanRef("fileReceiver")
                 .split(body(String.class).tokenize("\n"))
-                .parallelProcessing().threads(10)
+                //.shareUnitOfWork()
+               // .parallelProcessing().threads(10)
                 .to(ENDPOINT_BALANCE)
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
                 .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(property("CamelSplitSize"))
                 .to(ENDPOINT_CLEARING);
 
 
-        from(ENDPOINT_BALANCE).routeId("balance").delay(1500).setHeader("BALANCE_CHECK").constant("OK").log("balance called");
+        from(ENDPOINT_BALANCE).routeId("balance").delay(1500).setHeader("BALANCE_CHECK").constant("OK").log("balance called").to("file:data/balance");
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
 

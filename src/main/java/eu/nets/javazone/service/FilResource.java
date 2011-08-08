@@ -53,6 +53,7 @@ public class FilResource {
         });
 
         xstream.setMode(XStream.ID_REFERENCES);
+        xstream.omitField(Fil.class, "content");
         return xstream.toXML(fil);
     }
 
