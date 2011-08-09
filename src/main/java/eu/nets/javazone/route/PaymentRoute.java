@@ -40,6 +40,7 @@ public class PaymentRoute extends RouteBuilder {
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
         from(ENDPOINT_FILINSERT).beanRef("fileReceiver");
+
         from(ENDPOINT_BALANCE).routeId("balance")
                 .delay(1500)
                 .validate(bean(BalanceValidator.class))
