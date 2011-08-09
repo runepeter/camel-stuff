@@ -41,4 +41,7 @@ function updateDatabaseNumbers() {
     $.get('../service/transaction/antall/', function(data) {
         $('#numTraDb').html(data);
     });
+    $.get('../service/balance/antall/', function(data) {
+        $('#numBalanceDb').html(data);
+    });
 }

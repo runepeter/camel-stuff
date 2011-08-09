@@ -5,8 +5,13 @@ import eu.nets.javazone.service.CSMInsert;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PaymentRoute extends RouteBuilder {
 
@@ -31,22 +36,21 @@ public class PaymentRoute extends RouteBuilder {
                 .transacted()
                 .inOnly(ENDPOINT_RECEIPT)
                         // .inOnly(ENDPOINT_FILINSERT)
-                .split(body().tokenize("\n"))
+                .split(body().tokenize("\n")).parallelProcessing().threads(6)
                 .to(ENDPOINT_BALANCE)
-                .to(ENDPOINT_CLEARING_AGGREGATOR);
-
-
-
+                .to(ENDPOINT_CLEARING_AGGREGATOR)
+        ;
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
         from(ENDPOINT_FILINSERT).beanRef("fileReceiver");
 
         from(ENDPOINT_BALANCE).routeId("balance")
                 .delay(1500)
-                //.validate(bean(BalanceValidator.class))
                 .setHeader("BALANCE_CHECK")
                 .constant("OK")
                 .log("balance called")
+                .beanRef("balanceService")
+                .validate(bean(BalanceValidator.class))
         ;
 
         from(ENDPOINT_CLEARING_AGGREGATOR).filter(header("BALANCE_CHECK").isEqualTo("OK"))
@@ -64,23 +68,33 @@ public class PaymentRoute extends RouteBuilder {
                         System.err.println(exchange.getIn().getBody());
                     }
                 })
-                .log("clearing called").beanRef("csminsert");
-
-
+                .log("clearing called");//.beanRef("csminsert");
 
     }
 
 
-
     public static AggregationStrategy groupExchanges() {
-        return new GroupedExchangeAggregationStrategy() {
+        return new AggregationStrategy() {
+
             @Override
             public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
-                assertNoError(newExchange);
-                Exchange aggregate = super.aggregate(oldExchange, newExchange);
-                System.err.println(Thread.currentThread() + " -> " + aggregate.hashCode());
-                aggregate.setProperty("CamelSplitSize", newExchange.getProperty("CamelSplitSize"));
-                return aggregate;
+
+                List list;
+                Exchange answer = oldExchange;
+
+                if (oldExchange == null) {
+                    answer = new DefaultExchange(newExchange);
+                    list = new ArrayList<Exchange>();
+                    answer.getIn().setBody(list);
+                } else {
+                    list = oldExchange.getIn().getBody(List.class);
+                }
+
+                if (newExchange != null) {
+                    list.add(newExchange.getIn().getBody());
+                }
+                return answer;
+
             }
         };
     }
