@@ -19,11 +19,9 @@
 		</constructor-arg>
 	</bean>
 
-    <!--
 	<jdbc:initialize-database data-source="dataSource" ignore-failures="NONE">
-		<jdbc:script location="classpath:database/test-data-inmem.sql" />
+		<jdbc:script location="classpath:createdb.sql" />
 	</jdbc:initialize-database>
-	-->
 
 	<!-- Database Property -->
 	<bean id="hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">

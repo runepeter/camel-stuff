@@ -43,21 +43,24 @@ public class PaymentRoute extends RouteBuilder {
 
         from(ENDPOINT_BALANCE).routeId("balance")
                 .delay(1500)
-                .validate(bean(BalanceValidator.class))
+                //.validate(bean(BalanceValidator.class))
                 .setHeader("BALANCE_CHECK")
                 .constant("OK")
                 .log("balance called")
         ;
 
         from(ENDPOINT_CLEARING_AGGREGATOR).filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(10000).completionSize(property("CamelSplitSize")).transform(property("CamelGroupedExchange")).to(ENDPOINT_CLEARING);
+                .aggregate(property("CamelCorrelationId"), groupExchanges())
+                .aggregationRepositoryRef("aggregatorRepository")
+                .completionTimeout(10000)
+                .completionSize(property("CamelSplitSize"))
+                .transform(property("CamelGroupedExchange"))
+                .to(ENDPOINT_CLEARING);
 
         from(ENDPOINT_CLEARING).routeId("clearing")
-                .transacted()
                 .process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {
-
                         System.err.println(exchange.getIn().getBody());
                     }
                 })
@@ -73,12 +76,19 @@ public class PaymentRoute extends RouteBuilder {
         return new GroupedExchangeAggregationStrategy() {
             @Override
             public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
+                assertNoError(newExchange);
                 Exchange aggregate = super.aggregate(oldExchange, newExchange);
                 System.err.println(Thread.currentThread() + " -> " + aggregate.hashCode());
                 aggregate.setProperty("CamelSplitSize", newExchange.getProperty("CamelSplitSize"));
                 return aggregate;
             }
         };
+    }
+
+    private static void assertNoError(Exchange newExchange) {
+        if (newExchange.getIn().getBody(String.class).contains("ERROR")) {
+            throw new RuntimeException();
+        }
     }
 
 }

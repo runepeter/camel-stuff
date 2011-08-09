@@ -23,4 +23,11 @@
         <camel:package>eu.nets.javazone.route</camel:package>
     </camel:camelContext>
 
+    <bean id="aggregatorRepository" class="org.apache.camel.processor.aggregate.jdbc.JdbcAggregationRepository">
+        <constructor-arg ref="transactionManager" />
+        <constructor-arg value="aggregation" />
+        <constructor-arg ref="dataSource" />
+
+    </bean>
+
 </beans>
