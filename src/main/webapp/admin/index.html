@@ -16,23 +16,23 @@
 
 <div id="pageDiv">
 
-        <div id="info_span"></div>
-        <div id="adminDiv">
-            <div align="right">
-                <form id="myForm" action="/service/upload/" method="post" enctype="multipart/form-data">
-                    <input type="file" name="file" id="file"/>
-                    <input type="submit" value="Upload File" onclick="fileUpload();" />
-                </form>
-            </div>
-
-            <br/>
-
-            <div id="countersDiv" style="margin-bottom: 15px;">
-                <pre class="arrows-and-boxes"> () >receive ((Incomming files|{{<div style="font-size:30px" id="receivedCount"></div>}} > [d])) >split ((Balance checks|{{<div style="font-size:30px" id="balanceCount"></div>}})) >aggregate  ((Sendt to clearing|{{<div style="font-size:30px" id="clearingCount"></div>}}))
-                || () < ((d:Receipts|{{<div style="font-size:30px" id="receiptCount"></div>}}))  </pre>
-            </div>
+    <div id="info_span"></div>
+    <div>
+        <div align="right">
+            <form id="myForm" action="/service/upload/" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" id="file"/>
+                <input type="submit" value="Upload File" onclick="fileUpload();" />
+            </form>
         </div>
 
+        <br/>
+
+        <div style="margin-bottom: 15px;">
+                <pre class="arrows-and-boxes"> () >receive ((Incomming files|{{<div style="font-size:30px" id="receivedCount"></div>}} > [d])) >split ((Balance checks|{{<div style="font-size:30px" id="balanceCount"></div>}}) >aggregate  ((Sendt to clearing|{{<div style="font-size:30px" id="clearingCount"></div>}}))
+                || () < ((d:Receipts|{{<div style="font-size:30px" id="receiptCount"></div>}}))  </pre>
+        </div>
     </div>
+
+</div>
 </body>
 </html>

@@ -31,10 +31,16 @@ public class PaymentRoute extends RouteBuilder {
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
 
-        from(ENDPOINT_BALANCE).routeId("balance").delay(1500).setHeader("BALANCE_CHECK").constant("OK").log("balance called").to(ENDPOINT_CLEARING_ROUTING);
+        from(ENDPOINT_BALANCE).routeId("balance")
+                .delay(1500)
+                .setHeader("BALANCE_CHECK")
+                .constant("OK")
+                .log("balance called")
+                .to("file:data/balance")
+                .to(ENDPOINT_CLEARING_ROUTING);
 
-        from(ENDPOINT_CLEARING_ROUTING).filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(property("CamelSplitSize")).to(ENDPOINT_CLEARING_ROUTING);
+        from(ENDPOINT_CLEARING_ROUTING).routeId("routing").filter(header("BALANCE_CHECK").isEqualTo("OK"))
+                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(property("CamelSplitSize")).to(ENDPOINT_CLEARING);
 
         from(ENDPOINT_CLEARING).routeId("clearing").log("clearing called").bean(CSMInsert.class);
 

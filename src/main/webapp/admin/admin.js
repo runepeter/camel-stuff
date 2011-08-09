@@ -18,7 +18,7 @@ function updateCounters() {
     message("route=receipt&attribute=ExchangesCompleted", "receiptCount");
     message("route=balance&attribute=ExchangesCompleted", "balanceCount");
     message("route=receipt&attribute=ExchangesCompleted", "clearingCount");
-    setTimeout("updateCounters()", 10000);
+    setTimeout("updateCounters()", 1000);
 }
 
 function message(requestString, id) {
