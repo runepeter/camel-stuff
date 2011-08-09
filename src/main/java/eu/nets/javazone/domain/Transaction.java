@@ -15,16 +15,20 @@ public class Transaction {
     @SequenceGenerator(name = "TRANSACTION_SEQ", sequenceName = "transaction_id_sequence", allocationSize = 20)
     private Long id;
 
-
-
     private String creditAccount;
-
     private String debetAccount;
+    private long amount;
 
-    private String currency;
-    private String amount;
-    private String creditorName;
 
+    private Transaction() {
+        // hibernate
+    }
+
+    public Transaction(String creditAccount, String debetAccount, long amount) {
+        this.creditAccount = creditAccount;
+        this.debetAccount = debetAccount;
+        this.amount = amount;
+    }
 
     public Long getId() {
         return id;
@@ -33,8 +37,6 @@ public class Transaction {
     public void setId(Long id) {
         this.id = id;
     }
-
-
 
     public String getCreditAccount() {
         return creditAccount;
@@ -52,32 +54,15 @@ public class Transaction {
         this.debetAccount = debetAccount;
     }
 
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public String getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 
-    public String getCreditorName() {
-        return creditorName;
-    }
-
-    public void setCreditorName(String creditorName) {
-        this.creditorName = creditorName;
-    }
-
-    /*
+        /*
     public static TransactionFinderSpecification find() {
         return new TransactionFinderSpecification();
     }
@@ -103,5 +88,12 @@ public class Transaction {
             return false;
         }
         return id.equals(o.id);
+    }
+
+    public static Transaction parse(final String transaction) {
+
+        String[] parts = transaction.trim().split(";");
+
+        return new Transaction(parts[0], parts[1], Long.parseLong(parts[2]));
     }
 }

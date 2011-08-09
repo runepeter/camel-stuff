@@ -1,5 +1,7 @@
 package eu.nets.javazone.route;
 
+import eu.nets.javazone.service.BalanceValidator;
+import eu.nets.javazone.service.CSMInsert;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
@@ -40,16 +42,17 @@ public class PaymentRoute extends RouteBuilder {
         from(ENDPOINT_FILINSERT).beanRef("fileReceiver");
         from(ENDPOINT_BALANCE).routeId("balance")
                 .delay(1500)
+                .validate(bean(BalanceValidator.class))
                 .setHeader("BALANCE_CHECK")
                 .constant("OK")
                 .log("balance called")
-                .process(provokeFailure("ERROR"))
         ;
 
         from(ENDPOINT_CLEARING_AGGREGATOR).filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(property("CamelSplitSize")).transform(property("CamelGroupedExchange")).to(ENDPOINT_CLEARING);
+                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(10000).completionSize(property("CamelSplitSize")).transform(property("CamelGroupedExchange")).to(ENDPOINT_CLEARING);
 
         from(ENDPOINT_CLEARING).routeId("clearing")
+                .transacted()
                 .process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {
@@ -57,22 +60,13 @@ public class PaymentRoute extends RouteBuilder {
                         System.err.println(exchange.getIn().getBody());
                     }
                 })
-                .log("clearing called");//.bean(CSMInsert.class);
+                .log("clearing called").beanRef("csminsert");
 
 
 
     }
 
-    private Processor provokeFailure(final String failureBody) {
-        return new Processor() {
-            @Override
-            public void process(Exchange exchange) throws Exception {
-                if ((exchange.getIn().getBody(String.class)).contains(failureBody) ) {
-                    throw new RuntimeException();
-                }
-            }
-        };
-    }
+
 
     public static AggregationStrategy groupExchanges() {
         return new GroupedExchangeAggregationStrategy() {
