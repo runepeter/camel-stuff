@@ -2,6 +2,8 @@ package eu.nets.javazone.service;
 
 
 import eu.nets.javazone.domain.Transaction;
+import org.apache.camel.Body;
+import org.apache.camel.Header;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,22 +20,9 @@ public class CSMInsert {
     private SessionFactory sessionFactory;
 
 
-    public void insert(MultipartFile file) {
-        InputStream inputStream = null;
-        String originalFileName = "";
-        if (file != null) {
-            try {
-                inputStream = file.getInputStream();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            originalFileName = file.getName();
-        }
-        insert(inputStream, originalFileName);
-    }
 
 
-    private void insert(InputStream inputStream, String fileName) {
+    public void insert(@Body InputStream inputStream, @Header("CamelFileName") String fileName) {
         List<Transaction> transactions = parseFrom(inputStream, fileName);
         for (Transaction transaction : transactions) {
             sessionFactory.getCurrentSession().saveOrUpdate(transaction);

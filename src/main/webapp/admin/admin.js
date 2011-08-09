@@ -1,5 +1,7 @@
 $(document).ready(function() {
     updateCounters();
+
+    updateDatabaseNumbers();
     setTimeout('refreshPage();', 300000);
 });
 
@@ -9,15 +11,15 @@ function refreshPage() {
 
 function fileUpload() {
     $('#info_span').text("Uploading file").show().fadeOut(5000);
-    setTimeout('refreshPage();', 2000);
+   // setTimeout('refreshPage();', 2000);
     //$tabs.tabs('select', '#' + ui.panel.id);
 }
 
 function updateCounters() {
-    message("route=receive&attribute=ExchangesCompleted", "receivedCount");
+    message("route=webreceive&attribute=ExchangesCompleted", "receivedCount");
     message("route=receipt&attribute=ExchangesCompleted", "receiptCount");
     message("route=balance&attribute=ExchangesCompleted", "balanceCount");
-    message("route=receipt&attribute=ExchangesCompleted", "clearingCount");
+    message("route=clearing&attribute=ExchangesCompleted", "clearingCount");
     setTimeout("updateCounters()", 1000);
 }
 
@@ -30,4 +32,13 @@ function message(requestString, id) {
         }
     };
     http.send(null);
+}
+
+function updateDatabaseNumbers() {
+    $.get('../service/fil/antall/', function(data) {
+        $('#numFilDb').html(data);
+    });
+    $.get('../service/transaction/antall/', function(data) {
+        $('#numTraDb').html(data);
+    });
 }

@@ -43,6 +43,13 @@ public class FilResource {
 
     }
 
+    @RequestMapping(value= "antall/", method = RequestMethod.GET)
+    @ResponseBody
+    public String getFileAntall() {
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Fil.class);
+        List<Fil> list = criteria.list();
+        return ""+list.size();
+    }
 
     private String toJson(Fil fil) {
         XStream xstream = new XStream(new JsonHierarchicalStreamDriver() {

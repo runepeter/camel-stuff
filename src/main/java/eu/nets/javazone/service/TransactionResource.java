@@ -4,6 +4,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.json.JsonWriter;
+import eu.nets.javazone.domain.Fil;
 import eu.nets.javazone.domain.Transaction;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
@@ -43,6 +44,14 @@ public class TransactionResource {
 
     }
 
+
+    @RequestMapping(value= "antall/", method = RequestMethod.GET)
+    @ResponseBody
+    public String getTransactionsAntall() {
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Transaction.class);
+        List<Transaction> list = criteria.list();
+        return ""+list.size();
+    }
 
     private String toJson(Transaction transaction) {
         XStream xstream = new XStream(new JsonHierarchicalStreamDriver() {

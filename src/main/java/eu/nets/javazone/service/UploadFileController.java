@@ -32,8 +32,8 @@ public class UploadFileController {
             return "redirect:/status/";
         }
         InputStream inputStream = IOUtils.toInputStream(contents);
-        producerTemplate.sendBody(PaymentRoute.ENDPOINT_RECEIVE, file);
-        return "redirect:/status/";
+        producerTemplate.sendBody(PaymentRoute.WEB_RECEIVE, file);
+        return "redirect:/admin/";
     }
 
     @RequestMapping(method = RequestMethod.GET)

@@ -1,49 +1,77 @@
 package eu.nets.javazone.route;
 
-import eu.nets.javazone.service.CSMInsert;
 import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
 
 public class PaymentRoute extends RouteBuilder {
 
-    public static final String ENDPOINT_CLEARING_ROUTING = "direct:clearing";
-    public static final String ENDPOINT_CLEARING = "direct:clearingsystem";
+    public static final String ENDPOINT_CLEARING = "direct:clearing";
+    public static final String ENDPOINT_CLEARING_AGGREGATOR = "direct:clearingsystem";
     public static final String ENDPOINT_BALANCE = "direct:balance";
     public static final String ENDPOINT_RECEIPT = "direct:receipt";
-    public static final String ENDPOINT_RECEIVE = "direct:receive";
+    public static final String ENDPOINT_RECEIVE = "seda:receive";
+    public static final String ENDPOINT_FILINSERT = "direct:filinsert";
+    public static final String WEB_RECEIVE = "direct:webreceive";
 
     @Override
     public void configure() throws Exception {
+
+        from(WEB_RECEIVE)
+                .routeId("webreceive")
+                .setHeader("CamelFileName", simple("${in.body.originalFilename}"))
+                .transform(simple("${in.body.inputStream}")).to(ENDPOINT_RECEIVE);
+
         from(ENDPOINT_RECEIVE)
                 .routeId("receive")
                 .transacted()
                 .inOnly(ENDPOINT_RECEIPT)
-                .beanRef("fileReceiver")
-                .split(body(String.class).tokenize("\n"))
-                //.shareUnitOfWork()
-               // .parallelProcessing().threads(10)
-                .to(ENDPOINT_BALANCE);
+                        // .inOnly(ENDPOINT_FILINSERT)
+                .split(body().tokenize("\n"))
+                .to(ENDPOINT_BALANCE)
+                .to(ENDPOINT_CLEARING_AGGREGATOR);
 
 
 
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
-
+        from(ENDPOINT_FILINSERT).beanRef("fileReceiver");
         from(ENDPOINT_BALANCE).routeId("balance")
                 .delay(1500)
                 .setHeader("BALANCE_CHECK")
                 .constant("OK")
                 .log("balance called")
-                .to("file:data/balance")
-                .to(ENDPOINT_CLEARING_ROUTING);
+                .process(provokeFailure("ERROR"))
+        ;
 
-        from(ENDPOINT_CLEARING_ROUTING).routeId("routing").filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(property("CamelSplitSize")).to(ENDPOINT_CLEARING);
+        from(ENDPOINT_CLEARING_AGGREGATOR).filter(header("BALANCE_CHECK").isEqualTo("OK"))
+                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(property("CamelSplitSize")).transform(property("CamelGroupedExchange")).to(ENDPOINT_CLEARING);
 
-        from(ENDPOINT_CLEARING).routeId("clearing").log("clearing called").bean(CSMInsert.class);
+        from(ENDPOINT_CLEARING).routeId("clearing")
+                .process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
 
+                        System.err.println(exchange.getIn().getBody());
+                    }
+                })
+                .log("clearing called");//.bean(CSMInsert.class);
+
+
+
+    }
+
+    private Processor provokeFailure(final String failureBody) {
+        return new Processor() {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                if ((exchange.getIn().getBody(String.class)).contains(failureBody) ) {
+                    throw new RuntimeException();
+                }
+            }
+        };
     }
 
     public static AggregationStrategy groupExchanges() {
