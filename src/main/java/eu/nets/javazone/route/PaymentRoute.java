@@ -49,7 +49,7 @@ public class PaymentRoute extends RouteBuilder {
                 .setHeader("BALANCE_CHECK")
                 .constant("OK")
                 .log("balance called")
-                .beanRef("balanceService")
+//                .beanRef("balanceService")
                 .validate(bean(BalanceValidator.class))
         ;
 
