@@ -3,6 +3,7 @@ package eu.nets.javazone.route;
 import eu.nets.javazone.service.BalanceValidator;
 import eu.nets.javazone.service.CSMInsert;
 import org.apache.camel.Exchange;
+import org.apache.camel.Expression;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultExchange;
@@ -10,18 +11,23 @@ import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class PaymentRoute extends RouteBuilder {
 
     public static final String ENDPOINT_CLEARING = "direct:clearing";
-    public static final String ENDPOINT_CLEARING_AGGREGATOR = "direct:clearingsystem";
-    public static final String ENDPOINT_BALANCE = "direct:balance";
+    public static final String ENDPOINT_CLEARING_AGGREGATOR = "jms:clearingsystem";
+    public static final String ENDPOINT_BALANCE = "jms:balance";
     public static final String ENDPOINT_RECEIPT = "direct:receipt";
     public static final String ENDPOINT_RECEIVE = "seda:receive";
     public static final String ENDPOINT_FILINSERT = "direct:filinsert";
     public static final String WEB_RECEIVE = "direct:webreceive";
+
+    private final AtomicLong startTime = new AtomicLong(0);
 
     @Override
     public void configure() throws Exception {
@@ -33,31 +39,51 @@ public class PaymentRoute extends RouteBuilder {
 
         from(ENDPOINT_RECEIVE)
                 .routeId("receive")
+                .process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        startTime.set(System.currentTimeMillis());
+                    }
+                })
                 .transacted()
                 .inOnly(ENDPOINT_RECEIPT)
-                        // .inOnly(ENDPOINT_FILINSERT)
-                .split(body().tokenize("\n")).parallelProcessing().threads(6)
-                .to(ENDPOINT_BALANCE)
-                .to(ENDPOINT_CLEARING_AGGREGATOR)
-        ;
+                .split(body().tokenize("\n")).setHeader("JallaCorrelationId", constant("RUNE"))
+                .to(ENDPOINT_BALANCE + "?transferExchange=true");
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
         from(ENDPOINT_FILINSERT).beanRef("fileReceiver");
 
-        from(ENDPOINT_BALANCE).routeId("balance")
+        from(ENDPOINT_BALANCE + "?concurrentConsumers=6&maxConcurrentConsumers=6&transacted=true").transacted().routeId("balance")
+                .process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        System.err.println(new Date() + " :: " + Thread.currentThread().getName());
+                    }
+                })
                 .delay(1500)
                 .setHeader("BALANCE_CHECK")
                 .constant("OK")
                 .log("balance called")
-//                .beanRef("balanceService")
+                .beanRef("balanceService")
                 .validate(bean(BalanceValidator.class))
-        ;
+                .to(ENDPOINT_CLEARING_AGGREGATOR + "?transferExchange=true");
 
-        from(ENDPOINT_CLEARING_AGGREGATOR).filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(property("CamelCorrelationId"), groupExchanges())
+        from(ENDPOINT_CLEARING_AGGREGATOR + "?concurrentConsumers=6&maxConcurrentConsumers=6&transacted=true").filter(header("BALANCE_CHECK").isEqualTo("OK"))
+                .aggregate(header("JallaCorrelationId"), groupExchanges())
                 .aggregationRepositoryRef("aggregatorRepository")
+                .completionSize(6)
                 .completionTimeout(10000)
-                .completionSize(property("CamelSplitSize"))
+//                .discardOnCompletionTimeout()
+                .onCompletion().process(new Processor() {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+
+                if (exchange.getProperty("CamelAggregatedCompletedBy").equals("timeout")) {
+                    System.err.println("TIMEOUT, BABY!!");
+                }
+
+            }
+        }).end()
                 .transform(property("CamelGroupedExchange"))
                 .to(ENDPOINT_CLEARING);
 
@@ -66,6 +92,12 @@ public class PaymentRoute extends RouteBuilder {
                     @Override
                     public void process(Exchange exchange) throws Exception {
                         System.err.println(exchange.getIn().getBody());
+                    }
+                })
+                .process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        System.err.println("Took " + (System.currentTimeMillis() - startTime.get()) / 1000 + " secs.");
                     }
                 })
                 .log("clearing called");//.beanRef("csminsert");
