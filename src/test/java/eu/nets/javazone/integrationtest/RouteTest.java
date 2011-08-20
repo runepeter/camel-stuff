@@ -13,7 +13,7 @@ public class RouteTest extends CamelTestSupport {
 
     @Test
     public void testOneFileWithFourLines() throws Exception {
-        String body = "hei\n på \n deg \n bjørn \n ";
+        String body = "hei\n paa \n deg \n bjoern \n ";
         resultEndpoint.expectedMessageCount(4);
         template.sendBody("direct:start", body);
         resultEndpoint.assertIsSatisfied();

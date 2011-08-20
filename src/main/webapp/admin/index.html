@@ -19,8 +19,10 @@
     <div id="info_span"></div>
     <div>
         <div align="right">
+            <img src="small-green-check-mark-th.png" alt="ok file" onclick="loadOkFile();" />
+            <img src="small-red-x-mark-th.png" alt="not ok file" onclick="loadNotOkFile();"/>
             <form id="myForm" action="/service/upload/" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" id="file"/>
+                <input type="file" name="file" id="file"  />
                 <input type="submit" value="Upload File" onclick="fileUpload();" />
             </form>
         </div>

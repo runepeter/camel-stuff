@@ -15,6 +15,10 @@ function fileUpload() {
     //$tabs.tabs('select', '#' + ui.panel.id);
 }
 
+function loadOkFile() {
+    
+}
+
 function updateCounters() {
     message("route=webreceive&attribute=ExchangesCompleted", "receivedCount");
     message("route=receipt&attribute=ExchangesCompleted", "receiptCount");
