@@ -24,7 +24,6 @@ public class PaymentRoute extends RouteBuilder {
     public static final String ENDPOINT_BALANCE = "jms:balance";
     public static final String ENDPOINT_RECEIPT = "direct:receipt";
     public static final String ENDPOINT_RECEIVE = "seda:receive";
-    public static final String ENDPOINT_FILINSERT = "direct:filinsert";
     public static final String WEB_RECEIVE = "direct:webreceive";
 
     private final AtomicLong startTime = new AtomicLong(0);
@@ -51,7 +50,6 @@ public class PaymentRoute extends RouteBuilder {
                 .to(ENDPOINT_BALANCE + "?transferExchange=true");
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
-        from(ENDPOINT_FILINSERT).beanRef("fileReceiver");
 
         from(ENDPOINT_BALANCE + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true").transacted().routeId("balance")
                 .process(new Processor() {
