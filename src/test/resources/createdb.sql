@@ -13,7 +13,7 @@ CREATE TABLE balance(
     saldo number,
     constraint balance_pk PRIMARY KEY (id)
 );
-insert into balance values (1, 10000);
+insert into balance values (1, 1000000);
 
 CREATE TABLE reserved(
     saldo number

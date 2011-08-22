@@ -53,7 +53,7 @@ public class PaymentRoute extends RouteBuilder {
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
         from(ENDPOINT_FILINSERT).beanRef("fileReceiver");
 
-        from(ENDPOINT_BALANCE + "?concurrentConsumers=6&maxConcurrentConsumers=6&transacted=true").transacted().routeId("balance")
+        from(ENDPOINT_BALANCE + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true").transacted().routeId("balance")
                 .process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {
@@ -68,11 +68,11 @@ public class PaymentRoute extends RouteBuilder {
                 .validate(bean(BalanceValidator.class))
                 .to(ENDPOINT_CLEARING_AGGREGATOR + "?transferExchange=true");
 
-        from(ENDPOINT_CLEARING_AGGREGATOR + "?concurrentConsumers=6&maxConcurrentConsumers=6&transacted=true").filter(header("BALANCE_CHECK").isEqualTo("OK"))
+        from(ENDPOINT_CLEARING_AGGREGATOR + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true").filter(header("BALANCE_CHECK").isEqualTo("OK"))
                 .aggregate(header("JallaCorrelationId"), groupExchanges())
                 .aggregationRepositoryRef("aggregatorRepository")
-                .completionSize(6)
-                .completionTimeout(10000)
+                .completionSize(1000)
+                .completionTimeout(30000)
                 .discardOnCompletionTimeout()
 
                 .onCompletion().process(new Processor() {
