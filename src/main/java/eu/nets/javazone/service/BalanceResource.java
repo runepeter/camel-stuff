@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.json.JsonWriter;
 import eu.nets.javazone.domain.Fil;
+import org.apache.camel.CamelContext;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,15 @@ public class BalanceResource {
         long l = jdbc.queryForLong("select sum(saldo) from reserved");
 
         return "" + l;
+    }
+
+    @RequestMapping(value = "reset", method = RequestMethod.GET)
+    public String reset() {
+
+        SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
+        jdbc.update("update balance set saldo = 1000000");
+        jdbc.update("delete from reserved");
+        return "redirect:/admin/";
     }
 
 }

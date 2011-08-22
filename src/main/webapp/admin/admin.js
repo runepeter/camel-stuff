@@ -2,12 +2,9 @@ $(document).ready(function() {
     updateCounters();
 
     updateDatabaseNumbers();
-    setTimeout('refreshPage();', 300000);
 });
 
-function refreshPage() {
-    location.reload();
-}
+
 
 function fileUpload() {
     $('#info_span').text("Uploading file").show().fadeOut(5000);
@@ -57,4 +54,6 @@ function updateDatabaseNumbers() {
     $.get('../service/balance/reserved/', function(data) {
         $('#reserved').html(data);
     });
+    setTimeout('updateDatabaseNumbers()', 500);
+
 }
