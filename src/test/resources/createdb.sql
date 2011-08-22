@@ -10,7 +10,9 @@ CREATE TABLE aggregation_completed (
 );
 CREATE TABLE balance(
     id NUMBER NOT NULL,
-    transaction VARCHAR2(255) NOT NULL,
+    saldo number,
+    available number,
     constraint balance_pk PRIMARY KEY (id)
 );
+insert into balance values (1, 10000, 10000);
 CREATE SEQUENCE BALANCE_SEQ;

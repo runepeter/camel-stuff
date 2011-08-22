@@ -27,12 +27,20 @@ public class BalanceResource {
     @Autowired
     private DataSource dataSource;
 
-    @RequestMapping(value = "antall/", method = RequestMethod.GET)
+    @RequestMapping(value = "saldo/", method = RequestMethod.GET)
     @ResponseBody
-    public String getAntall() {
+    public String getSaldo() {
 
         SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
-        return "" + jdbc.queryForInt("SELECT COUNT(*) FROM BALANCE");
+        return "" + jdbc.queryForInt("SELECT saldo FROM BALANCE where id = 1");
+    }
+
+    @RequestMapping(value = "available/", method = RequestMethod.GET)
+    @ResponseBody
+    public String getAvailable() {
+
+        SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
+        return "" + jdbc.queryForInt("SELECT available FROM BALANCE where id = 1");
     }
 
 }

@@ -88,6 +88,7 @@ public class PaymentRoute extends RouteBuilder {
                 .to(ENDPOINT_CLEARING);
 
         from(ENDPOINT_CLEARING).routeId("clearing")
+              //  .beanRef("csminsert")
                 .process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {

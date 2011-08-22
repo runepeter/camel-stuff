@@ -20,7 +20,7 @@ function loadOkFile() {
 }
 
 function updateCounters() {
-    message("route=webreceive&attribute=ExchangesCompleted", "receivedCount");
+    message("route=receive&attribute=ExchangesCompleted", "receivedCount");
     message("route=receipt&attribute=ExchangesCompleted", "receiptCount");
     message("route=balance&attribute=ExchangesCompleted", "balanceCount");
     message("route=clearing&attribute=ExchangesCompleted", "clearingCount");
@@ -39,6 +39,7 @@ function message(requestString, id) {
 }
 
 function updateDatabaseNumbers() {
+    /*
     $.get('../service/fil/antall/', function(data) {
         $('#numFilDb').html(data);
     });
@@ -47,5 +48,13 @@ function updateDatabaseNumbers() {
     });
     $.get('../service/balance/antall/', function(data) {
         $('#numBalanceDb').html(data);
+    });
+    */
+
+    $.get('../service/balance/saldo/', function(data) {
+        $('#saldo').html(data);
+    });
+    $.get('../service/balance/available/', function(data) {
+        $('#available').html(data);
     });
 }

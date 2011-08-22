@@ -16,8 +16,22 @@ public class BalanceService {
         this.jdbc = new SimpleJdbcTemplate(dataSource);
     }
 
+    /*
     public void logBalanceCall(final String transaction) {
         jdbc.update("INSERT INTO BALANCE(ID, TRANSACTION) VALUES (balance_seq.nextval, ?)", transaction);
+    }
+    */
+
+    public void checkBalanceAndReserveAmount(String body) {
+        int amount = Integer.parseInt(body.split(";")[2].trim());
+        int available = jdbc.queryForInt("select available from balance where id = 1");
+        if (amount > available) {
+            throw new RuntimeException("Not balance");
+        }
+
+        available = available - amount;
+        jdbc.update("update balance set available =?", available);
+
     }
 
 }

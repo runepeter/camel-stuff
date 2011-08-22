@@ -9,6 +9,8 @@
     <script src="../js/jquery.wz_jsgraphics.js" type="text/javascript"></script>
     <script src="../js/arrowsandboxes.js" type="text/javascript"></script>
     <script type="text/javascript" src="admin.js"></script>
+
+
 </head>
 <title>Status</title>
 
@@ -18,38 +20,50 @@
 
     <div id="info_span"></div>
     <div>
-        <div align="right">
-            <img src="small-green-check-mark-th.png" alt="ok file" onclick="loadOkFile();" />
-            <img src="small-red-x-mark-th.png" alt="not ok file" onclick="loadNotOkFile();"/>
+        <div align="center">
+            <table>
+                <tr>
+                    <td><a href="/service/upload/okfile"><img src="small-green-check-mark-th.png" alt="ok file" onclick="fileUpload();" /></a></td>
+                    <td><a href="/service/upload/badfile"><img src="small-red-x-mark-th.png" alt="not ok file" onclick="fileUpload();" /></a></td>
+                </tr>
+                <tr>
+                    <td align=center>OK FIL</td><td align="center">IKKE OK FIL</td>
+                </tr>
+            </table>
+            <!--
             <form id="myForm" action="/service/upload/" method="post" enctype="multipart/form-data">
                 <input type="file" name="file" id="file"  />
                 <input type="submit" value="Upload File" onclick="fileUpload();" />
             </form>
+            -->
         </div>
 
         <br/>
+        <div align="center">
+            <table border="1">
+                <tr>
+                    <!--<td>Number of files commited in database</td>
+                    <td>Number of transactions commited in database</td>-->
+                    <td><h1>Saldo</h1></td>
+                    <td><h1>Tilgjengelig</h1></td>
+                </tr>
+                <tr>
+                    <!--<td id="numFilDb"></td>
+                    <td id="numTraDb"></td>-->
+                    <td style="font-size:15px" align="right" id="saldo"></td>
+                    <td style="font-size:15px" align="right" id="available"></td>
+                </tr>
+            </table>
+        </div>
+        <br/>
 
         <div style="margin-bottom: 15px;">
-                <pre class="arrows-and-boxes"> () >receive ((Incomming files|{{<div style="font-size:30px" id="receivedCount"></div>}} > [d])) >split ((Balance checks|{{<div style="font-size:30px" id="balanceCount"></div>}}) >aggregate  ((Sendt to clearing|{{<div style="font-size:30px" id="clearingCount"></div>}}))
+                <pre class="arrows-and-boxes"> () >receive ((Incomming files|{{<div style="font-size:30px" id="receivedCount"></div>}} > [d])) >split ((Balance check|{{<div style="font-size:30px" id="balanceCount"></div>}}) >aggregate  ((Clearing|{{<div style="font-size:30px" id="clearingCount"></div>}}))
                 || () < ((d:Receipts|{{<div style="font-size:30px" id="receiptCount"></div>}}))  </pre>
         </div>
 
         <br/>
 
-        <div align="center">
-            <table border="1">
-                <tr>
-                    <td>Number of files commited in database</td>
-                    <td>Number of transactions commited in database</td>
-                    <td>Number of balance calls committed to database</td>
-                </tr>
-                <tr>
-                    <td id="numFilDb"></td>
-                    <td id="numTraDb"></td>
-                    <td id="numBalanceDb"></td>
-                </tr>
-            </table>
-        </div>
     </div>
 
 </div>
