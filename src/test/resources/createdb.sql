@@ -11,8 +11,11 @@ CREATE TABLE aggregation_completed (
 CREATE TABLE balance(
     id NUMBER NOT NULL,
     saldo number,
-    available number,
     constraint balance_pk PRIMARY KEY (id)
 );
-insert into balance values (1, 10000, 10000);
+insert into balance values (1, 10000);
+
+CREATE TABLE reserved(
+    saldo number
+);
 CREATE SEQUENCE BALANCE_SEQ;

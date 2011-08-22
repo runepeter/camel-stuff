@@ -73,7 +73,8 @@ public class PaymentRoute extends RouteBuilder {
                 .aggregationRepositoryRef("aggregatorRepository")
                 .completionSize(6)
                 .completionTimeout(10000)
-//                .discardOnCompletionTimeout()
+                .discardOnCompletionTimeout()
+
                 .onCompletion().process(new Processor() {
             @Override
             public void process(Exchange exchange) throws Exception {
@@ -84,11 +85,12 @@ public class PaymentRoute extends RouteBuilder {
 
             }
         }).end()
-                .transform(property("CamelGroupedExchange"))
-                .to(ENDPOINT_CLEARING);
+     //   .transform(property("CamelGroupedExchange"))
+                .to(ENDPOINT_CLEARING)
+                ;
 
         from(ENDPOINT_CLEARING).routeId("clearing")
-              //  .beanRef("csminsert")
+                .beanRef("csminsert")
                 .process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {

@@ -20,10 +20,10 @@ function loadOkFile() {
 }
 
 function updateCounters() {
-    message("route=receive&attribute=ExchangesCompleted", "receivedCount");
-    message("route=receipt&attribute=ExchangesCompleted", "receiptCount");
-    message("route=balance&attribute=ExchangesCompleted", "balanceCount");
-    message("route=clearing&attribute=ExchangesCompleted", "clearingCount");
+    message("route=receive&attribute=ExchangesTotal", "receivedCount");
+    message("route=receipt&attribute=ExchangesTotal", "receiptCount");
+    message("route=balance&attribute=ExchangesTotal", "balanceCount");
+    message("route=clearing&attribute=ExchangesTotal", "clearingCount");
     setTimeout("updateCounters()", 1000);
 }
 
@@ -54,7 +54,7 @@ function updateDatabaseNumbers() {
     $.get('../service/balance/saldo/', function(data) {
         $('#saldo').html(data);
     });
-    $.get('../service/balance/available/', function(data) {
-        $('#available').html(data);
+    $.get('../service/balance/reserved/', function(data) {
+        $('#reserved').html(data);
     });
 }

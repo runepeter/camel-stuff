@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.sql.DataSource;
 import java.io.Writer;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("balance/")
@@ -35,12 +36,14 @@ public class BalanceResource {
         return "" + jdbc.queryForInt("SELECT saldo FROM BALANCE where id = 1");
     }
 
-    @RequestMapping(value = "available/", method = RequestMethod.GET)
+    @RequestMapping(value = "reserved/", method = RequestMethod.GET)
     @ResponseBody
-    public String getAvailable() {
+    public String getReserved() {
 
         SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
-        return "" + jdbc.queryForInt("SELECT available FROM BALANCE where id = 1");
+        long l = jdbc.queryForLong("select sum(saldo) from reserved");
+
+        return "" + l;
     }
 
 }

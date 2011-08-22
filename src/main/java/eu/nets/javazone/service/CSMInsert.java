@@ -25,18 +25,22 @@ public class CSMInsert {
     }
 
 
-    public void insert(List<Exchange> exchanges) {
-        for (Exchange exchange : exchanges) {
+    public void insert(List<String> payments) {
 
-            int amount = Integer.parseInt(exchange.getIn().getBody(String.class).split(";")[2].trim());
+        for (String payment : payments) {
+            int amount = Integer.parseInt(payment.split(";")[2].trim());
             int saldo = jdbc.queryForInt("select saldo from balance where id = 1");
 
 
             saldo = saldo - amount;
             jdbc.update("update balance set saldo =?", saldo);
-            Transaction transaction = Transaction.parse(exchange.getIn().getBody(String.class));
-            sessionFactory.getCurrentSession().saveOrUpdate(transaction);
+         //   jdbc.update("set rowcount 1 delete from reserver where saldo = ?", saldo);
+            //Transaction transaction = Transaction.parse(exchange.getIn().getBody(String.class));
+            //sessionFactory.getCurrentSession().saveOrUpdate(transaction);
+
         }
+
+
     }
 
 }
