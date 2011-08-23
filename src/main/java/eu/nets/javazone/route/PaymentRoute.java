@@ -43,7 +43,9 @@ public class PaymentRoute extends RouteBuilder {
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
 
-        from(ENDPOINT_BALANCE + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true").transacted().routeId("balance")
+        from(ENDPOINT_BALANCE + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true")
+                .routeId("balance")
+                .transacted()
                 .validate(bean(BalanceValidator.class))
                 .beanRef("balanceService")
                 .to(ENDPOINT_CLEARING_AGGREGATOR + "?transferExchange=true");
