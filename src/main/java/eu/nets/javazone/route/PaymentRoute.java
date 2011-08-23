@@ -36,23 +36,20 @@ public class PaymentRoute extends RouteBuilder {
                 .process(new StartTimingProcessor())
                 .transacted()
                 .inOnly(ENDPOINT_RECEIPT)
-                .split(body().tokenize("\n")).setHeader("JallaCorrelationId", constant("RUNE"))
+                .split(body().tokenize("\n")).setHeader("MyCorrelationId", constant("RUNE"))
                 .to(ENDPOINT_BALANCE + "?transferExchange=true");
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
 
         from(ENDPOINT_BALANCE + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true").transacted().routeId("balance")
-                .delay(1500)
-                .setHeader("BALANCE_CHECK")
-                .constant("OK")
-                .log("balance called")
-                .beanRef("balanceService")
                 .validate(bean(BalanceValidator.class))
+                .beanRef("balanceService")
                 .to(ENDPOINT_CLEARING_AGGREGATOR + "?transferExchange=true");
 
 
-        from(ENDPOINT_CLEARING_AGGREGATOR + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true").filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(header("JallaCorrelationId"), groupExchanges())
+        from(ENDPOINT_CLEARING_AGGREGATOR + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true")
+                .filter(header("BALANCE_CHECK").isEqualTo("OK"))
+                .aggregate(header("MyCorrelationId"), groupExchanges())
                 .aggregationRepositoryRef("aggregatorRepository")
                 .completionSize(1000)
                 .completionTimeout(30000)
@@ -63,7 +60,7 @@ public class PaymentRoute extends RouteBuilder {
         from(ENDPOINT_CLEARING).routeId("clearing")
                 .beanRef("csminsert")
                 .process(new StopTimingProcessor())
-                .log("clearing called");//.beanRef("csminsert");
+                .log("clearing called");
 
     }
 
