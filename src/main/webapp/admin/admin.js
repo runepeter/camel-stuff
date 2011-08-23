@@ -49,10 +49,26 @@ function updateDatabaseNumbers() {
     */
 
     $.get('../service/balance/saldo/', function(data) {
-        $('#saldo').html(data);
+        s = ""+data
+        if (data>999999) {
+            s = s.substring(0,s.length-6)+" "+s.substring(s.length-6, s.length)
+        }
+
+        if (data > 999) {
+            s = s.substring(0, s.length-3)+" "+s.substring(s.length-3, s.length)
+        }
+        $('#saldo').html(s);
     });
     $.get('../service/balance/reserved/', function(data) {
-        $('#reserved').html(data);
+        j = ""+data
+        if (data>999999) {
+            j = j.substring(0,j.length-6)+" "+j.substring(j.length-6, j.length)
+        }
+
+        if (data > 999) {
+            j = j.substring(0, j.length-3)+" "+j.substring(j.length-3, j.length)
+        }
+        $('#reserved').html(j);
     });
     setTimeout('updateDatabaseNumbers()', 500);
 
@@ -62,5 +78,5 @@ function updateMessage() {
     $.get('../service/message/', function(data) {
         $('#info_span').html(data);
     });
-    setTimeout('updateMessage()', 4000);
+    setTimeout('updateMessage()', 5000);
 }
