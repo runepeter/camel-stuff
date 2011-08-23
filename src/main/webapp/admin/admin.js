@@ -1,13 +1,13 @@
 $(document).ready(function() {
     updateCounters();
-
     updateDatabaseNumbers();
+    updateMessage();
 });
 
 
 
 function fileUpload() {
-    $('#info_span').text("Uploading file").show().fadeOut(5000);
+    $('#info_span').text("Uploading file");
    // setTimeout('refreshPage();', 2000);
     //$tabs.tabs('select', '#' + ui.panel.id);
 }
@@ -56,4 +56,11 @@ function updateDatabaseNumbers() {
     });
     setTimeout('updateDatabaseNumbers()', 500);
 
+}
+
+function updateMessage() {
+    $.get('../service/message/', function(data) {
+        $('#info_span').html(data);
+    });
+    setTimeout('updateMessage()', 4000);
 }

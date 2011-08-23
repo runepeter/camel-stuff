@@ -1,6 +1,7 @@
 package eu.nets.javazone.route;
 
 import eu.nets.javazone.service.BalanceValidator;
+import eu.nets.javazone.service.MessageResource;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
@@ -109,6 +110,7 @@ public class PaymentRoute extends RouteBuilder {
     class StopTimingProcessor implements Processor {
         @Override
         public void process(Exchange exchange) throws Exception {
+            MessageResource.message = "Last file processed in " + (System.currentTimeMillis() - startTime.get()) / 1000 + " secs in total.";
             System.err.println("Last file processed in " + (System.currentTimeMillis() - startTime.get()) / 1000 + " secs in total.");
         }
     }
