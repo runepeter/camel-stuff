@@ -33,7 +33,9 @@ public class BalanceService {
         int amount = Integer.parseInt(body.split(";")[2].trim());
 
         int available = jdbc.queryForInt("select saldo from balance where id = 1");
-        if (amount > available) {
+        int reserved = jdbc.queryForInt("select sum(saldo) from reserved");
+
+        if (amount > (available-reserved)) {
             exchange.getIn().setHeader("BALANCE_CHECK", "NOT_OK");
         } else {
             exchange.getIn().setHeader("BALANCE_CHECK", "OK");

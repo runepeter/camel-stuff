@@ -37,7 +37,8 @@ public class PaymentRoute extends RouteBuilder {
                 .process(new StartTimingProcessor())
                 .transacted()
                 .inOnly(ENDPOINT_RECEIPT)
-                .split(body().tokenize("\n")).setHeader("MyCorrelationId", constant(UUID.randomUUID().toString()))
+                .setHeader("MyCorrelationId", simple("${exchangeId}"))
+                .split(body().tokenize("\n"))
                 .to(ENDPOINT_BALANCE + "?transferExchange=true");
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");

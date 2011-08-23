@@ -1,8 +1,6 @@
 package eu.nets.javazone.service;
 
 
-import eu.nets.javazone.domain.Transaction;
-import org.apache.camel.Exchange;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -34,6 +32,7 @@ public class CSMInsert {
 
             saldo = saldo - amount;
             jdbc.update("update balance set saldo =?", saldo);
+             jdbc.update("update reserved set saldo =0");
          //   jdbc.update("set rowcount 1 delete from reserver where saldo = ?", saldo);
             //Transaction transaction = Transaction.parse(exchange.getIn().getBody(String.class));
             //sessionFactory.getCurrentSession().saveOrUpdate(transaction);
