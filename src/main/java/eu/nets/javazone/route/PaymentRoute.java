@@ -10,6 +10,7 @@ import org.apache.camel.processor.aggregate.AggregationStrategy;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class PaymentRoute extends RouteBuilder {
@@ -36,7 +37,7 @@ public class PaymentRoute extends RouteBuilder {
                 .process(new StartTimingProcessor())
                 .transacted()
                 .inOnly(ENDPOINT_RECEIPT)
-                .split(body().tokenize("\n")).setHeader("MyCorrelationId", constant("RUNE"))
+                .split(body().tokenize("\n")).setHeader("MyCorrelationId", constant(UUID.randomUUID().toString()))
                 .to(ENDPOINT_BALANCE + "?transferExchange=true");
 
         from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
