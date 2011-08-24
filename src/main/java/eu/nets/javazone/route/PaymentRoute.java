@@ -56,6 +56,7 @@ public class PaymentRoute extends RouteBuilder {
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
                 .aggregate(header("MyCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(1000)
                 .aggregationRepositoryRef("aggregatorRepository")
+                .discardOnCompletionTimeout()
                 .to(CLEARING);
 
         from(CLEARING)
