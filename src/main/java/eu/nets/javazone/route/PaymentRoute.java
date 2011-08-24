@@ -24,7 +24,17 @@ public class PaymentRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-
+        from(RECEIVE)
+                .routeId("receive")
+                .transacted()
+                .process(new StartTimingProcessor())
+                .inOnly(RECEIPT)
+                .split(body(String.class).tokenize("\n"))
+                .to(BALANCE)
+                .filter(header("BALANCE_CHECK").isEqualTo("OK"))
+                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(1000)
+                .discardOnCompletionTimeout()
+                .to(CLEARING);
 
 
         from(BALANCE).routeId("balance").validate(bean(BalanceValidator.class)).beanRef("balanceService");
