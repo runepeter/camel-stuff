@@ -25,13 +25,7 @@ public class BalanceService {
      */
     public void checkBalanceAndReserveAmount(Exchange exchange) {
         String body = exchange.getIn().getBody(String.class);
-        /*
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        */
+        doLegacyStuff();
 
         int amount = Integer.parseInt(body.split(";")[2].trim());
 
@@ -45,6 +39,14 @@ public class BalanceService {
             jdbc.update("insert into reserved values(?)", amount);
         }
 
+    }
+
+    private void doLegacyStuff() {
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
