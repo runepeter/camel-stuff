@@ -19,10 +19,13 @@
 
     <context:component-scan base-package="eu.nets.javazone" />
 
+
     <camel:camelContext id="camelContext">
         <camel:propertyPlaceholder id="properties" location="ref:env_properties" />
-        <camel:package>eu.nets.javazone.route</camel:package>
+        <camel:routeBuilder ref="route"/>
     </camel:camelContext>
+
+    <bean id="route" class="eu.nets.javazone.route.PaymentRoute"/>
 
     <bean id="aggregatorRepository" class="org.apache.camel.processor.aggregate.jdbc.JdbcAggregationRepository">
         <constructor-arg ref="transactionManager" />

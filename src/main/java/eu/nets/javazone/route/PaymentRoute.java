@@ -9,63 +9,56 @@ import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class PaymentRoute extends RouteBuilder {
 
-    public static final String ENDPOINT_CLEARING = "direct:clearing";
-    public static final String ENDPOINT_CLEARING_AGGREGATOR = "jms:clearingsystem";
-    public static final String ENDPOINT_BALANCE = "jms:balance";
-    public static final String ENDPOINT_RECEIPT = "direct:receipt";
-    public static final String ENDPOINT_RECEIVE = "seda:receive";
-    public static final String WEB_RECEIVE = "direct:webreceive";
+    public static final String RECEIVE = "seda:webreceive";
+    public static final String RECEIPT = "direct:receipt";
+    public static final String BALANCE = "jms:balance";
+    public static final String CLEARING_AGGREGATOR = "jms:clearingsystem";
+    public static final String CLEARING = "direct:clearing";
 
     private final AtomicLong startTime = new AtomicLong(0);
 
     @Override
     public void configure() throws Exception {
 
-        from(WEB_RECEIVE)
-                .routeId("webreceive")
-                .setHeader("CamelFileName", simple("${in.body.originalFilename}"))
-                .transform(simple("${in.body.inputStream}")).to(ENDPOINT_RECEIVE);
-
-        from(ENDPOINT_RECEIVE)
+        from(RECEIVE)
                 .routeId("receive")
                 .process(new StartTimingProcessor())
                 .transacted()
-                .inOnly(ENDPOINT_RECEIPT)
+                .inOnly(RECEIPT)
                 .setHeader("MyCorrelationId", simple("${exchangeId}"))
                 .split(body().tokenize("\n"))
-                .to(ENDPOINT_BALANCE + "?transferExchange=true");
+                .to(BALANCE + "?transferExchange=true");
 
-        from(ENDPOINT_RECEIPT).routeId("receipt").log("receipt called");
 
-        from(ENDPOINT_BALANCE + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true")
+
+        from(RECEIPT).routeId("receipt").to("file:data/receipts/");
+
+        from(BALANCE + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true")
                 .routeId("balance")
                 .transacted()
                 .validate(bean(BalanceValidator.class))
                 .beanRef("balanceService")
-                .to(ENDPOINT_CLEARING_AGGREGATOR + "?transferExchange=true");
+                .to(CLEARING_AGGREGATOR + "?transferExchange=true");
 
 
-        from(ENDPOINT_CLEARING_AGGREGATOR + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true")
+        from(CLEARING_AGGREGATOR + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true")
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
                 .aggregate(header("MyCorrelationId"), groupExchanges())
                 .aggregationRepositoryRef("aggregatorRepository")
                 .completionSize(1000)
                 .completionTimeout(30000)
                 .discardOnCompletionTimeout()
-                .to(ENDPOINT_CLEARING)
+                .to(CLEARING)
         ;
 
-        from(ENDPOINT_CLEARING).routeId("clearing")
+        from(CLEARING).routeId("clearing")
                 .beanRef("csminsert")
-                .process(new StopTimingProcessor())
-                .log("clearing called");
+                .process(new StopTimingProcessor());
 
     }
 

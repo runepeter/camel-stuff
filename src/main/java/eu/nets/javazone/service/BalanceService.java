@@ -30,6 +30,7 @@ public class BalanceService {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
         int amount = Integer.parseInt(body.split(";")[2].trim());
 
         int available = jdbc.queryForInt("select saldo from balance where id = 1");
