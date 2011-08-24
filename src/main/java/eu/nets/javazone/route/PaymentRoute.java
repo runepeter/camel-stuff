@@ -16,7 +16,9 @@ public class PaymentRoute extends RouteBuilder {
 
     public static final String RECEIVE = "jms:receive";
     public static final String RECEIPT = "jms:receipt";
+    public static final String BALANCE_SPLITTER = "jms:balance_splitter";
     public static final String BALANCE = "direct:balance";
+    public static final String CLEARING_AGGREGATOR = "jms:clearing_aggregator";
     public static final String CLEARING = "direct:clearing";
 
     private final AtomicLong startTime = new AtomicLong(0);
@@ -27,18 +29,30 @@ public class PaymentRoute extends RouteBuilder {
         from(RECEIVE)
                 .routeId("receive")
                 .process(new StartTimingProcessor())
-                .
+                .inOnly(RECEIPT)
+                .to(BALANCE_SPLITTER);
 
+
+        from(BALANCE_SPLITTER)
+                .setHeader("MyCorrelationId", simple("${exchangeId}"))
+                .split(body(String.class).tokenize("\n"))
+                .to(BALANCE);
 
         from(BALANCE)
                 .routeId("balance")
                 .validate(bean(BalanceValidator.class))
-                .beanRef("balanceService");
+                .beanRef("balanceService")
+                .to(CLEARING_AGGREGATOR);
 
         from(RECEIPT)
                 .routeId("receipt")
                 .transform(body().prepend("Received OK\n"))
                 .to("file:data/receipts/");
+
+        from(CLEARING_AGGREGATOR)
+                .filter(header("BALANCE_CHECK").isEqualTo("OK"))
+                .aggregate(header("MyCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(1000)
+                .to(CLEARING);
 
         from(CLEARING)
                 .routeId("clearing")
