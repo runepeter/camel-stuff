@@ -16,7 +16,7 @@ public class PaymentRoute extends RouteBuilder {
 
     public static final String RECEIVE = "jms:receive";
     public static final String RECEIPT = "jms:receipt";
-    public static final String BALANCE_SPLITTER = "jms:balance_splitter";
+    public static final String BALANCE_SPLITTER = "jms:balance_splitter?transacted=true";
     public static final String BALANCE = "direct:balance";
     public static final String CLEARING_AGGREGATOR = "jms:clearing_aggregator";
     public static final String CLEARING = "direct:clearing";
@@ -34,12 +34,14 @@ public class PaymentRoute extends RouteBuilder {
 
 
         from(BALANCE_SPLITTER)
+                .transacted()
                 .setHeader("MyCorrelationId", simple("${exchangeId}"))
                 .split(body(String.class).tokenize("\n"))
                 .to(BALANCE);
 
         from(BALANCE)
                 .routeId("balance")
+                .transacted()
                 .validate(bean(BalanceValidator.class))
                 .beanRef("balanceService")
                 .to(CLEARING_AGGREGATOR);
