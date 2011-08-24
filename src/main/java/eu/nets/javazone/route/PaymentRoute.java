@@ -32,6 +32,7 @@ public class PaymentRoute extends RouteBuilder {
                 .to(BALANCE)
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
                 .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(1000)
+                .discardOnCompletionTimeout()
                 .to(CLEARING);
 
 
