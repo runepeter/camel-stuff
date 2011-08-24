@@ -7,8 +7,6 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
-import org.apache.camel.spi.ExecutorServiceStrategy;
-import org.apache.camel.spi.ThreadPoolProfile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +25,6 @@ public class PaymentRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        ExecutorServiceStrategy strategy = getContext().getExecutorServiceStrategy();
-        ThreadPoolProfile defaultProfile = strategy.getDefaultThreadPoolProfile();
-        defaultProfile.setPoolSize(100);
-        defaultProfile.setMaxPoolSize(100);
 
         from(RECEIVE)
                 .routeId("receive")
@@ -62,7 +56,6 @@ public class PaymentRoute extends RouteBuilder {
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
                 .aggregate(header("MyCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(1000)
                 .aggregationRepositoryRef("aggregatorRepository")
-                .discardOnCompletionTimeout()
                 .to(CLEARING);
 
         from(CLEARING)
