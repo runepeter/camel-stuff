@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class PaymentRoute extends RouteBuilder {
 
-    public static final String RECEIVE = "seda:receive";
-    public static final String RECEIPT = "seda:receipt";
+    public static final String RECEIVE = "jms:receive";
+    public static final String RECEIPT = "jms:receipt";
     public static final String BALANCE = "direct:balance";
     public static final String CLEARING = "direct:clearing";
 
@@ -26,22 +26,24 @@ public class PaymentRoute extends RouteBuilder {
 
         from(RECEIVE)
                 .routeId("receive")
-                .transacted()
                 .process(new StartTimingProcessor())
-                .inOnly(RECEIPT)
-                .split(body(String.class).tokenize("\n"))
-                .to(BALANCE)
-                .filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(1000)
-                .discardOnCompletionTimeout()
-                .to(CLEARING);
+                .
 
 
-        from(BALANCE).routeId("balance").validate(bean(BalanceValidator.class)).beanRef("balanceService");
+        from(BALANCE)
+                .routeId("balance")
+                .validate(bean(BalanceValidator.class))
+                .beanRef("balanceService");
 
-        from(RECEIPT).routeId("receipt").transform(body().prepend("Received OK\n")).to("file:data/receipts/");
+        from(RECEIPT)
+                .routeId("receipt")
+                .transform(body().prepend("Received OK\n"))
+                .to("file:data/receipts/");
 
-        from(CLEARING).routeId("clearing").beanRef("csminsert").process(new StopTimingProcessor());
+        from(CLEARING)
+                .routeId("clearing")
+                .beanRef("csminsert")
+                .process(new StopTimingProcessor());
 
     }
 
