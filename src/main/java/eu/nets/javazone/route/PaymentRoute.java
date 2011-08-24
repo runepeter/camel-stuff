@@ -14,10 +14,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class PaymentRoute extends RouteBuilder {
 
-    public static final String RECEIVE = "seda:webreceive";
-    public static final String RECEIPT = "direct:receipt";
-    public static final String BALANCE = "jms:balance";
-    public static final String CLEARING_AGGREGATOR = "jms:clearingsystem";
+    public static final String RECEIVE = "seda:receive";
+    public static final String RECEIPT = "seda:receipt";
+    public static final String BALANCE = "direct:balance";
     public static final String CLEARING = "direct:clearing";
 
     private final AtomicLong startTime = new AtomicLong(0);
@@ -28,37 +27,19 @@ public class PaymentRoute extends RouteBuilder {
         from(RECEIVE)
                 .routeId("receive")
                 .process(new StartTimingProcessor())
-                .transacted()
                 .inOnly(RECEIPT)
-                .setHeader("MyCorrelationId", simple("${exchangeId}"))
-                .split(body().tokenize("\n"))
-                .to(BALANCE + "?transferExchange=true");
-
-
-
-        from(RECEIPT).routeId("receipt").to("file:data/receipts/");
-
-        from(BALANCE + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true")
-                .routeId("balance")
-                .transacted()
-                .validate(bean(BalanceValidator.class))
-                .beanRef("balanceService")
-                .to(CLEARING_AGGREGATOR + "?transferExchange=true");
-
-
-        from(CLEARING_AGGREGATOR + "?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true")
+                .split(body(String.class).tokenize("\n"))
+                .to(BALANCE)
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(header("MyCorrelationId"), groupExchanges())
-                .aggregationRepositoryRef("aggregatorRepository")
-                .completionSize(1000)
-                .completionTimeout(30000)
-                .discardOnCompletionTimeout()
-                .to(CLEARING)
-        ;
+                .aggregate(property("CamelCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(1000)
+                .to(CLEARING);
 
-        from(CLEARING).routeId("clearing")
-                .beanRef("csminsert")
-                .process(new StopTimingProcessor());
+
+        from(BALANCE).routeId("balance").validate(bean(BalanceValidator.class)).beanRef("balanceService");
+
+        from(RECEIPT).routeId("receipt").transform(body().prepend("Received OK\n")).to("file:data/receipts/");
+
+        from(CLEARING).routeId("clearing").beanRef("csminsert").process(new StopTimingProcessor());
 
     }
 

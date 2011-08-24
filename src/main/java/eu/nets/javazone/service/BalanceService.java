@@ -25,11 +25,13 @@ public class BalanceService {
      */
     public void checkBalanceAndReserveAmount(Exchange exchange) {
         String body = exchange.getIn().getBody(String.class);
+        /*
         try {
             Thread.sleep(1500);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        */
 
         int amount = Integer.parseInt(body.split(";")[2].trim());
 
