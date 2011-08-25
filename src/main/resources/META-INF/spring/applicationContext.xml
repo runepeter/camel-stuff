@@ -6,7 +6,6 @@
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-
 	<import resource="spring-datasource.xml" />
 	<import resource="spring-tx.xml" />
 	<import resource="spring-jms.xml" />

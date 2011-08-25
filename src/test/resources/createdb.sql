@@ -16,6 +16,8 @@ CREATE TABLE balance(
 insert into balance values (1, 2000000);
 
 CREATE TABLE reserved(
-    saldo number
+    saldo number,
+    status number,
+    created timestamp
 );
 CREATE SEQUENCE BALANCE_SEQ;

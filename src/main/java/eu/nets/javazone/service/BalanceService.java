@@ -2,12 +2,14 @@ package eu.nets.javazone.service;
 
 import com.sun.jmx.snmp.tasks.ThreadService;
 import org.apache.camel.Exchange;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import java.util.Date;
 
 @Service
 public class BalanceService {
@@ -36,9 +38,23 @@ public class BalanceService {
             exchange.getIn().setHeader("BALANCE_CHECK", "NOT_OK");
         } else {
             exchange.getIn().setHeader("BALANCE_CHECK", "OK");
-            jdbc.update("insert into reserved values(?)", amount);
+            jdbc.update("insert into reserved(saldo, status, created) values(?, 0, ?)", amount, new Date());
         }
 
+    }
+
+    public void commitReservation(Exchange exchange) {
+        int count = jdbc.update("update reserved set status=1 where status=0");
+        System.err.println("Updated " + count + " reservations.");
+    }
+
+    public void rollbackReservations() {
+
+        Date now = new Date();
+        Date date = DateUtils.addSeconds(now, -30);
+
+        int count = jdbc.update("delete from reserved where status=0 and created < ?", date);
+        System.err.println("Rolled back " + count + " reservations.");
     }
 
     private void doLegacyStuff() {

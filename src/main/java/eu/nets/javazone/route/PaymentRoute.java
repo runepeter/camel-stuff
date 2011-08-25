@@ -1,11 +1,17 @@
 package eu.nets.javazone.route;
 
+import eu.nets.javazone.service.BalanceService;
 import eu.nets.javazone.service.BalanceValidator;
 import eu.nets.javazone.service.MessageResource;
 import org.apache.camel.Exchange;
+import org.apache.camel.Predicate;
 import org.apache.camel.Processor;
+import org.apache.camel.Route;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.management.InstrumentationProcessor;
+import org.apache.camel.processor.DefaultChannel;
+import org.apache.camel.processor.UnitOfWorkProcessor;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
 
 import java.util.ArrayList;
@@ -32,7 +38,6 @@ public class PaymentRoute extends RouteBuilder {
                 .inOnly(RECEIPT)
                 .inOnly(BALANCE_SPLITTER);
 
-
         from(BALANCE_SPLITTER)
                 .transacted()
                 .setHeader("MyCorrelationId", simple("${exchangeId}"))
@@ -43,7 +48,7 @@ public class PaymentRoute extends RouteBuilder {
                 .routeId("balance")
                 .transacted()
                 .validate(bean(BalanceValidator.class))
-                .beanRef("balanceService")
+                .beanRef("balanceService", "checkBalanceAndReserveAmount")
                 .inOnly(CLEARING_AGGREGATOR);
 
         from(RECEIPT)
@@ -52,11 +57,15 @@ public class PaymentRoute extends RouteBuilder {
                 .to("file:data/receipts/");
 
         from(CLEARING_AGGREGATOR)
+                .routeId("rune")
                 .transacted()
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(header("MyCorrelationId"), groupExchanges()).completionTimeout(30000).completionSize(1000)
+                .aggregate(header("MyCorrelationId"), groupExchanges()).completionTimeout(20000).completionSize(1000)
                 .aggregationRepositoryRef("aggregatorRepository")
                 .discardOnCompletionTimeout()
+                .onCompletion()
+                    .beanRef("balanceService", "commitReservation")
+                .end()
                 .to(CLEARING);
 
         from(CLEARING)
@@ -65,12 +74,11 @@ public class PaymentRoute extends RouteBuilder {
                 .beanRef("csminsert")
                 .process(new StopTimingProcessor());
 
+        from("timer://rollback?fixedRate=true&period=30000")
+                .transacted()
+                .beanRef("balanceService", "rollbackReservations");
+
     }
-
-
-
-
-
 
     public static AggregationStrategy groupExchanges() {
         return new AggregationStrategy() {
