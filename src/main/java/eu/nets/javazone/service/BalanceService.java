@@ -48,7 +48,7 @@ public class BalanceService {
             exchange.getIn().setHeader("BALANCE_CHECK", "NOT_OK");
         } else {
             exchange.getIn().setHeader("BALANCE_CHECK", "OK");
-            jdbc.update("insert into reserved(tx, account, saldo, status, created) values(?, ?, ?, 1, ?)", txId, creditAccount, amount, new Date());
+            jdbc.update("insert into reserved(tx, account, saldo, status, created) values(?, ?, ?, 0, ?)", txId, creditAccount, amount, new Date());
         }
     }
 
