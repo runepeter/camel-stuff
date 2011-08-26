@@ -1,6 +1,5 @@
 package eu.nets.javazone.route;
 
-import eu.nets.javazone.service.BalanceService;
 import eu.nets.javazone.service.BalanceValidator;
 import eu.nets.javazone.service.MessageResource;
 import org.apache.camel.Exchange;
@@ -13,6 +12,7 @@ import org.apache.camel.management.InstrumentationProcessor;
 import org.apache.camel.processor.DefaultChannel;
 import org.apache.camel.processor.UnitOfWorkProcessor;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
+import org.apache.camel.spi.AggregationRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,16 +57,22 @@ public class PaymentRoute extends RouteBuilder {
                 .to("file:data/receipts/");
 
         from(CLEARING_AGGREGATOR)
-                .routeId("rune")
                 .transacted()
                 .filter(header("BALANCE_CHECK").isEqualTo("OK"))
-                .aggregate(header("MyCorrelationId"), groupExchanges()).completionTimeout(20000).completionSize(1000)
-                .aggregationRepositoryRef("aggregatorRepository")
-                .discardOnCompletionTimeout()
+                .aggregate(header("MyCorrelationId"), groupExchanges())
+                    .completionTimeout(20000)
+                    .completionSize(1000)
+                    .aggregationRepositoryRef("aggregatorRepository")
+                    //.discardOnCompletionTimeout()
                 .onCompletion()
-                    .beanRef("balanceService", "commitReservation")
-                .end()
-                .to(CLEARING);
+                    .choice()
+                        .when(timeout())
+                            .beanRef("balanceService", "rollbackReservations")
+                        .otherwise()
+                            .beanRef("balanceService", "commitReservation")
+                            .to(CLEARING)
+                    .end()
+                .end();
 
         from(CLEARING)
                 .routeId("clearing")
@@ -74,10 +80,14 @@ public class PaymentRoute extends RouteBuilder {
                 .beanRef("csminsert")
                 .process(new StopTimingProcessor());
 
-        from("timer://rollback?fixedRate=true&period=30000")
+        /*from("timer://rollback?fixedRate=true&period=1000")
                 .transacted()
-                .beanRef("balanceService", "rollbackReservations");
+                .beanRef("balanceService", "rollbackReservations");*/
 
+    }
+
+    private Predicate timeout() {
+        return header("CamelAggregatedCompletedBy").isEqualTo("timeout");
     }
 
     public static AggregationStrategy groupExchanges() {

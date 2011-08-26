@@ -23,7 +23,7 @@ public class BalanceResource {
     public String getSaldo() {
 
         SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
-        return "" + jdbc.queryForInt("SELECT saldo FROM BALANCE where id = 1");
+        return "" + jdbc.queryForInt("SELECT saldo FROM BALANCE where account = '11111111111'");
     }
 
     @RequestMapping(value = "reserved/", method = RequestMethod.GET)
@@ -31,7 +31,7 @@ public class BalanceResource {
     public String getReserved() {
 
         SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
-        long l = jdbc.queryForLong("select sum(saldo) from reserved");
+        long l = jdbc.queryForLong("select sum(saldo) from reserved where account = '11111111111'");
 
         return "" + l;
     }
@@ -40,8 +40,8 @@ public class BalanceResource {
     public String reset() {
 
         SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
-        jdbc.update("update balance set saldo = 1000000");
-        jdbc.update("delete from reserved");
+        jdbc.update("update balance set saldo = 1000000 where account = '11111111111'");
+        jdbc.update("delete from reserved where account = '11111111111'");
         return "redirect:/admin/";
     }
 

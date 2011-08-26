@@ -9,13 +9,15 @@ CREATE TABLE aggregation_completed (
     constraint aggregation_completed_pk PRIMARY KEY (id)
 );
 CREATE TABLE balance(
-    id NUMBER NOT NULL,
+    account VARCHAR NOT NULL,
     saldo number,
-    constraint balance_pk PRIMARY KEY (id)
+    constraint balance_pk PRIMARY KEY (account)
 );
-insert into balance values (1, 2000000);
+insert into balance(account, saldo) values ('11111111111', 2000000);
 
 CREATE TABLE reserved(
+    tx VARCHAR NOT NULL,
+    account VARCHAR NOT NULL,
     saldo number,
     status number,
     created timestamp

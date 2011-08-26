@@ -22,17 +22,18 @@ public class CSMInsert {
         this.jdbc = new SimpleJdbcTemplate(dataSource);
     }
 
-
     public void insert(List<String> payments) {
 
         for (String payment : payments) {
-            int amount = Integer.parseInt(payment.split(";")[2].trim());
-            int saldo = jdbc.queryForInt("select saldo from balance where id = 1");
 
+            String creditAccount = payment.split(";")[0].trim();
+            String debetAccount = payment.split(";")[0].trim();
+            int amount = Integer.parseInt(payment.split(";")[2].trim());
+            int saldo = jdbc.queryForInt("select saldo from balance where account = ?", creditAccount);
 
             saldo = saldo - amount;
-            jdbc.update("update balance set saldo =?", saldo);
-             jdbc.update("update reserved set saldo =0");
+            jdbc.update("update balance set saldo = ? where account = ?", saldo, creditAccount);
+             jdbc.update("update reserved set saldo=0 where account = ? and status=1", creditAccount);
          //   jdbc.update("set rowcount 1 delete from reserver where saldo = ?", saldo);
             //Transaction transaction = Transaction.parse(exchange.getIn().getBody(String.class));
             //sessionFactory.getCurrentSession().saveOrUpdate(transaction);
