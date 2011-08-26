@@ -126,8 +126,8 @@ public class PaymentRoute extends RouteBuilder {
     class StopTimingProcessor implements Processor {
         @Override
         public void process(Exchange exchange) throws Exception {
-            MessageResource.message = "Last file processed in " + (System.currentTimeMillis() - startTime.get()) / 1000 + " secs in total.";
-            System.err.println("Last file processed in " + (System.currentTimeMillis() - startTime.get()) / 1000 + " secs in total.");
+            MessageResource.message = "Last shipment cleared in " + (System.currentTimeMillis() - startTime.get()) / 1000 + " secs in total.";
+            System.err.println("Last shipment cleared in " + (System.currentTimeMillis() - startTime.get()) / 1000 + " secs in total.");
         }
     }
 }

@@ -65,6 +65,7 @@ public class BalanceService {
         if (count > 0) {
             System.err.println("Rolled back " + count + " reservations [" + txId + "].");
         }
+        MessageResource.message = "One shipment timed out before all messages passed balance check.";
     }
 
     private void doLegacyStuff() {
