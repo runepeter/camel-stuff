@@ -49,6 +49,7 @@ public class PaymentRoute extends RouteBuilder {
                 .transacted()
                 .validate(bean(BalanceValidator.class))
                 .beanRef("balanceService", "checkBalanceAndReserveAmount")
+                .validate(header("BALANCE_CHECK").isEqualTo("OK"))
                 .inOnly(CLEARING_AGGREGATOR);
 
         from(RECEIPT)
@@ -58,12 +59,10 @@ public class PaymentRoute extends RouteBuilder {
 
         from(CLEARING_AGGREGATOR)
                 .transacted()
-                .filter(header("BALANCE_CHECK").isEqualTo("OK"))
                 .aggregate(header("MyCorrelationId"), groupExchanges())
-                    .completionTimeout(20000)
+                    .completionTimeout(30000)
                     .completionSize(1000)
                     .aggregationRepositoryRef("aggregatorRepository")
-                    //.discardOnCompletionTimeout()
                 .onCompletion()
                     .choice()
                         .when(timeout())
@@ -79,12 +78,25 @@ public class PaymentRoute extends RouteBuilder {
                 .transacted()
                 .beanRef("csminsert")
                 .process(new StopTimingProcessor());
-
-        /*from("timer://rollback?fixedRate=true&period=1000")
-                .transacted()
-                .beanRef("balanceService", "rollbackReservations");*/
-
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private Predicate timeout() {
         return header("CamelAggregatedCompletedBy").isEqualTo("timeout");
