@@ -20,8 +20,8 @@ public class PaymentRoute extends RouteBuilder {
     public static final String RECEIVE = "jms:receive";
     public static final String RECEIPT = "jms:receipt";
     public static final String BALANCE_SPLITTER = "jms:balance_splitter?transacted=true";
-    public static final String BALANCE = "direct:balance";
-    public static final String CLEARING_AGGREGATOR = "jms:clearing_aggregator?transacted=true";
+    public static final String BALANCE = "jms:balance?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true";
+    public static final String CLEARING_AGGREGATOR = "jms:clearing_aggregator?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true";
     public static final String CLEARING = "direct:clearing";
 
     private final AtomicLong startTime = new AtomicLong(0);
@@ -41,7 +41,6 @@ public class PaymentRoute extends RouteBuilder {
                 .transacted()
                 .setHeader("MyCorrelationId", simple("${exchangeId}"))
                 .split(body(String.class).tokenize("\n"))
-                .parallelProcessing().threads(100)
                 .to(BALANCE);
 
         from(BALANCE)
