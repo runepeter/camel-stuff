@@ -1,18 +1,12 @@
 package eu.nets.javazone.route;
 
-import eu.nets.javazone.service.BalanceValidator;
 import eu.nets.javazone.service.MessageResource;
 import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
 import org.apache.camel.Processor;
-import org.apache.camel.Route;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultExchange;
-import org.apache.camel.management.InstrumentationProcessor;
-import org.apache.camel.processor.DefaultChannel;
-import org.apache.camel.processor.UnitOfWorkProcessor;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
-import org.apache.camel.spi.AggregationRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +41,6 @@ public class PaymentRoute extends RouteBuilder {
         from(BALANCE)
                 .routeId("balance")
                 .transacted()
-                .validate(bean(BalanceValidator.class))
                 .beanRef("balanceService", "checkBalanceAndReserveAmount")
                 .validate(header("BALANCE_CHECK").isEqualTo("OK"))
                 .inOnly(CLEARING_AGGREGATOR);

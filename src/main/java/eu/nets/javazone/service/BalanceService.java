@@ -1,19 +1,18 @@
 package eu.nets.javazone.service;
 
-import com.sun.jmx.snmp.tasks.ThreadService;
 import org.apache.camel.Exchange;
 import org.apache.camel.spi.AggregationRepository;
-import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.Date;
 
 @Service
 public class BalanceService {
+
+    private final boolean test = true;
 
     private final SimpleJdbcTemplate jdbc;
     private final AggregationRepository aggregationRepository;
@@ -29,9 +28,15 @@ public class BalanceService {
      * This method sleeps for 1,5 seconds to simulate a remote call to a legacy system or something.
      */
     public void checkBalanceAndReserveAmount(Exchange exchange) {
+
         String body = exchange.getIn().getBody(String.class);
         String txId = (String) exchange.getIn().getHeader("MyCorrelationId");
-        doLegacyStuff();
+
+        if (test) {
+            callTest();
+        } else {
+            callProd();
+        }
 
         String creditAccount = body.split(";")[0].trim();
         int amount = Integer.parseInt(body.split(";")[2].trim());
@@ -68,7 +73,11 @@ public class BalanceService {
         MessageResource.message = "One shipment timed out before all messages passed balance check.";
     }
 
-    private void doLegacyStuff() {
+    private void callTest() {
+        //System.err.println("Mock'ed Balance Check.");
+    }
+
+    private void callProd() {
         try {
             Thread.sleep(1500);
         } catch (InterruptedException e) {
