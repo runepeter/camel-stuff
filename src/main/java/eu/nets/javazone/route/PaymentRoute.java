@@ -31,7 +31,6 @@ public class PaymentRoute extends RouteBuilder {
 
         from(BALANCE)
                 .routeId("balance")
-                .transacted()
                 .beanRef("balanceService", "checkBalanceAndReserveAmount")
                 .validate(header("BALANCE_CHECK").isEqualTo("OK"));
 
@@ -42,7 +41,6 @@ public class PaymentRoute extends RouteBuilder {
 
         from(CLEARING)
                 .routeId("clearing")
-                .transacted()
                 .beanRef("csminsert")
                 .process(new StopTimingProcessor());
     }
