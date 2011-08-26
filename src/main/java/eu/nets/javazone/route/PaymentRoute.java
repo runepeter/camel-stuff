@@ -14,9 +14,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class PaymentRoute extends RouteBuilder {
 
+
     public static final String RECEIVE = "jms:receive";
     public static final String RECEIPT = "jms:receipt";
-    public static final String BALANCE = "jms:balance";
+    public static final String BALANCE_SPLITTER = "jms:balance_splitter";
+    public static final String BALANCE = "direct:balance";
+    public static final String CLEARING_AGGREGATOR = "jms:clearing_aggregator";
     public static final String CLEARING = "direct:clearing";
 
     private final AtomicLong startTime = new AtomicLong(0);
@@ -27,22 +30,35 @@ public class PaymentRoute extends RouteBuilder {
         from(RECEIVE)
                 .routeId("receive")
                 .process(new StartTimingProcessor())
-                ;
+                .inOnly(RECEIPT)
+                .to(BALANCE_SPLITTER);
+
+
+        from(BALANCE_SPLITTER)
+                .setHeader("MyCorrelationId", simple("${exchangeId}"))
+                .split(body(String.class).tokenize("\n"))
+                .to(BALANCE);
 
         from(BALANCE)
                 .routeId("balance")
                 .beanRef("balanceService", "checkBalanceAndReserveAmount")
-                .validate(header("BALANCE_CHECK").isEqualTo("OK"));
+                .validate(header("BALANCE_CHECK").isEqualTo("OK"))
+                .to(CLEARING_AGGREGATOR);
 
         from(RECEIPT)
                 .routeId("receipt")
                 .transform(body().prepend("Received OK\n"))
                 .to("file:data/receipts/");
 
+        from(CLEARING_AGGREGATOR)
+                .aggregate(header("MyCorrelationId"), groupExchanges()).completionSize(1000)
+                .to(CLEARING);
+
         from(CLEARING)
                 .routeId("clearing")
                 .beanRef("csminsert")
                 .process(new StopTimingProcessor());
+
     }
 
 
