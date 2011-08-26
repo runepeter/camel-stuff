@@ -69,7 +69,7 @@ public class PaymentRoute extends RouteBuilder {
                         .when(timeout())
                             .beanRef("balanceService", "rollbackReservations")
                         .otherwise()
-                            .beanRef("balanceService", "commitReservation")
+                            .beanRef("balanceService", "commitReservations")
                             .to(CLEARING)
                     .end()
                 .end();

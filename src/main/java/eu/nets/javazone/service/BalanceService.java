@@ -47,7 +47,7 @@ public class BalanceService {
         }
     }
 
-    public void commitReservation(Exchange exchange) {
+    public void commitReservations(Exchange exchange) {
         String txId = (String) exchange.getProperty("CamelAggregatedCorrelationKey");
         int count = jdbc.update("update reserved set status=1 where tx = ? and status=0", txId);
         if (count > 0) {
