@@ -12,7 +12,7 @@ import java.util.Date;
 @Service
 public class BalanceService {
 
-    private final boolean test = true;
+    private final boolean test = false;
 
     private final SimpleJdbcTemplate jdbc;
     private final AggregationRepository aggregationRepository;
