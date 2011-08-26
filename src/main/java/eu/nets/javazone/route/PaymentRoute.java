@@ -16,7 +16,7 @@ public class PaymentRoute extends RouteBuilder {
 
     public static final String RECEIVE = "jms:receive";
     public static final String RECEIPT = "jms:receipt";
-    public static final String BALANCE = "jms:balance?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true";
+    public static final String BALANCE = "jms:balance";
     public static final String CLEARING = "direct:clearing";
 
     private final AtomicLong startTime = new AtomicLong(0);
