@@ -51,13 +51,14 @@
                     <td style="font-size:15px" align="right" id="reserved"></td>
                 </tr>
             </table>
-            <!--<a href="/service/balance/reset">reset</a>-->
+            <a href="/service/balance/reset">reset</a>
         </div>
         <br/>
 
         <div style="margin-bottom: 15px;">
-                <pre class="arrows-and-boxes"> () >receive ((Incomming files|{{<div style="font-size:30px" id="receivedCount"></div>}} > [d])) >split ((Balance check|{{<div style="font-size:30px" id="balanceCount"></div>}}) >aggregate  ((Clearing|{{<div style="font-size:30px" id="clearingCount"></div>}}))
-                || () < ((d:Receipts|{{<div style="font-size:30px" id="receiptCount"></div>}}))  </pre>
+                <pre class="arrows-and-boxes">
+
+                    () >receive ((Incomming files|{{<div style="font-size:30px" id="receivedCount"></div>}})) >split ((Balance check|{{<div style="font-size:30px" id="balanceCount"></div>}})) >aggregate  ((Clearing|{{<div style="font-size:30px" id="clearingCount"></div>}}))</pre>
         </div>
 
         <br/>

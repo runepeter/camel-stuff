@@ -18,7 +18,6 @@ function loadOkFile() {
 
 function updateCounters() {
     message("route=receive&attribute=ExchangesTotal", "receivedCount");
-    message("route=receipt&attribute=ExchangesTotal", "receiptCount");
     message("route=balance&attribute=ExchangesTotal", "balanceCount");
     message("route=clearing&attribute=ExchangesTotal", "clearingCount");
     setTimeout("updateCounters()", 1000);
@@ -36,17 +35,6 @@ function message(requestString, id) {
 }
 
 function updateDatabaseNumbers() {
-    /*
-    $.get('../service/fil/antall/', function(data) {
-        $('#numFilDb').html(data);
-    });
-    $.get('../service/transaction/antall/', function(data) {
-        $('#numTraDb').html(data);
-    });
-    $.get('../service/balance/antall/', function(data) {
-        $('#numBalanceDb').html(data);
-    });
-    */
 
     $.get('../service/balance/saldo/', function(data) {
         s = ""+data

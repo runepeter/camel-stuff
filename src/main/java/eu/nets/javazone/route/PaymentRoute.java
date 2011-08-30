@@ -18,7 +18,6 @@ public class PaymentRoute extends RouteBuilder {
 
 
     public static final String RECEIVE = "jms:receive";
-    public static final String RECEIPT = "jms:receipt";
     public static final String BALANCE_SPLITTER = "jms:balance_splitter?transacted=true";
     public static final String BALANCE = "jms:balance?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true";
     public static final String CLEARING_AGGREGATOR = "jms:clearing_aggregator?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true";
@@ -33,7 +32,6 @@ public class PaymentRoute extends RouteBuilder {
         from(RECEIVE)
                 .routeId("receive")
                 .process(new StartTimingProcessor())
-                .inOnly(RECEIPT)
                 .to(BALANCE_SPLITTER);
 
 
@@ -48,11 +46,6 @@ public class PaymentRoute extends RouteBuilder {
                 .beanRef("balanceService", "checkBalanceAndReserveAmount")
                 .validate(header("BALANCE_CHECK").isEqualTo("OK"))
                 .to(CLEARING_AGGREGATOR);
-
-        from(RECEIPT)
-                .routeId("receipt")
-                .transform(body().prepend("Received OK\n"))
-                .to("file:data/receipts/");
 
         from(CLEARING_AGGREGATOR)
                 .transacted()

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.sql.DataSource;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("balance/")
@@ -23,7 +25,12 @@ public class BalanceResource {
     public String getSaldo() {
 
         SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
-        return "" + jdbc.queryForInt("SELECT saldo FROM BALANCE where account = '11111111111'");
+        List<Map<String,Object>> list = jdbc.queryForList("SELECT saldo FROM BALANCE");
+        if (list != null && list.size() > 0) {
+            return "" + jdbc.queryForInt("SELECT saldo FROM BALANCE where account = '11111111111'");
+        } else {
+            return "0";
+        }
     }
 
     @RequestMapping(value = "reserved/", method = RequestMethod.GET)
@@ -40,7 +47,12 @@ public class BalanceResource {
     public String reset() {
 
         SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
-        jdbc.update("update balance set saldo = 1000000 where account = '11111111111'");
+        List<Map<String, Object>> list = jdbc.queryForList("select * from balance");
+        if (list != null && list.size()>0) {
+            jdbc.update("update balance set saldo = 2000000 where account = '11111111111'");
+        } else {
+            jdbc.update("insert into balance values ('11111111111', 2000000)");
+        }
         jdbc.update("delete from reserved where account = '11111111111'");
         return "redirect:/admin/";
     }
