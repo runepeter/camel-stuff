@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.sql.DataSource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,7 @@ public class BalanceResource {
         jdbc.update("delete from reserved");
         jdbc.update("delete from aggregation");
         jdbc.update("delete from aggregation_completed");
+
         return "redirect:/admin/";
     }
 
