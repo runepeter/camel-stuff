@@ -29,6 +29,7 @@ public class PaymentRoute extends RouteBuilder {
     public void configure() throws Exception {
         configureThreadPool();
 
+
         from(RECEIVE)
                 .routeId("receive")
                 .process(new StartTimingProcessor())
@@ -50,23 +51,22 @@ public class PaymentRoute extends RouteBuilder {
         from(CLEARING_AGGREGATOR)
                 .transacted()
                 .aggregate(header("MyCorrelationId"), groupExchanges())
-                    .completionTimeout(30000)
-                    .completionSize(1000)
-                    .aggregationRepositoryRef("aggregatorRepository")
-                .onCompletion()
-                    .choice()
-                        .when(timeout())
-                            .beanRef("balanceService", "rollbackReservations")
-                        .otherwise()
-                            .beanRef("balanceService", "commitReservations")
-                            .to(CLEARING)
-                    .end()
-                .end();
+                .completionTimeout(60000)
+                .completionSize(1000)
+                .aggregationRepositoryRef("aggregatorRepository")
+                .to(CLEARING);
 
 
         from(CLEARING)
                 .routeId("clearing")
-                .beanRef("csminsert")
+                .transacted()
+                .choice()
+                    .when(timeout())
+                        .beanRef("balanceService", "rollbackReservations")
+                    .otherwise()
+                        .beanRef("balanceService", "commitReservations")
+                        .beanRef("csminsert")
+                .end()
                 .process(new StopTimingProcessor());
 
     }

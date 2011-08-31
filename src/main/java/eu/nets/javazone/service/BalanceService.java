@@ -35,6 +35,7 @@ public class BalanceService {
         if (test) {
             callTest();
         } else {
+            // OBS OBS, this uses 1,5 secs!!!!!! - Regards, Hani.
             callProd();
         }
 

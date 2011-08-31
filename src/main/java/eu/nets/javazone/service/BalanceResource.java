@@ -48,12 +48,11 @@ public class BalanceResource {
 
         SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
         List<Map<String, Object>> list = jdbc.queryForList("select * from balance");
-        if (list != null && list.size()>0) {
-            jdbc.update("update balance set saldo = 2000000 where account = '11111111111'");
-        } else {
-            jdbc.update("insert into balance values ('11111111111', 2000000)");
-        }
-        jdbc.update("delete from reserved where account = '11111111111'");
+        jdbc.update("delete from balance");
+        jdbc.update("insert into balance values ('11111111111', 2000000)");
+        jdbc.update("delete from reserved");
+        jdbc.update("delete from aggregation");
+        jdbc.update("delete from aggregation_completed");
         return "redirect:/admin/";
     }
 
