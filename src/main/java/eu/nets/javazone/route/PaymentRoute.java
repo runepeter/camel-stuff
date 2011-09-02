@@ -54,12 +54,6 @@ public class PaymentRoute extends RouteBuilder {
                 .completionTimeout(30000)
                 .completionSize(1000)
                 .aggregationRepositoryRef("aggregatorRepository")
-                .to(CLEARING);
-
-
-        from(CLEARING)
-                .routeId("clearing")
-                .transacted()
                 .choice()
                     .when(timeout())
                         .beanRef("balanceService", "rollbackReservations")
@@ -67,6 +61,12 @@ public class PaymentRoute extends RouteBuilder {
                         .beanRef("balanceService", "commitReservations")
                         .beanRef("csminsert")
                 .end()
+                .to(CLEARING);
+
+
+        from(CLEARING)
+                .routeId("clearing")
+                .transacted()
                 .process(new StopTimingProcessor());
 
     }
