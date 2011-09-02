@@ -59,14 +59,14 @@ public class PaymentRoute extends RouteBuilder {
                         .beanRef("balanceService", "rollbackReservations")
                     .otherwise()
                         .beanRef("balanceService", "commitReservations")
-                        .beanRef("csminsert")
-                .end()
-                .to(CLEARING);
+                        .to(CLEARING)
+                .end();
 
 
         from(CLEARING)
                 .routeId("clearing")
                 .transacted()
+                .beanRef("csminsert")
                 .process(new StopTimingProcessor());
 
     }
