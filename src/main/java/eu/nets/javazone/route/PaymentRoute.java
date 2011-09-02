@@ -17,8 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class PaymentRoute extends RouteBuilder {
 
 
-    public static final String RECEIVE = "jms:receive";
-    public static final String BALANCE_SPLITTER = "jms:balance_splitter?transacted=true";
+    public static final String RECEIVE = "jms:receive?transacted=true";
     public static final String BALANCE = "jms:balance?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true";
     public static final String CLEARING_AGGREGATOR = "direct:clearing_aggregator";
     public static final String CLEARING = "direct:clearing";
@@ -32,18 +31,15 @@ public class PaymentRoute extends RouteBuilder {
 
         from(RECEIVE)
                 .routeId("receive")
-                .process(new StartTimingProcessor())
-                .to(BALANCE_SPLITTER);
-
-
-        from(BALANCE_SPLITTER)
                 .transacted()
+                .process(new StartTimingProcessor())
                 .setHeader("MyCorrelationId", simple("${exchangeId}"))
                 .split(body(String.class).tokenize("\n"))
                 .to(BALANCE);
 
         from(BALANCE)
                 .routeId("balance")
+                .transacted()
                 .beanRef("balanceService", "checkBalanceAndReserveAmount")
                 .validate(header("BALANCE_CHECK").isEqualTo("OK"))
                 .to(CLEARING_AGGREGATOR);
@@ -65,7 +61,6 @@ public class PaymentRoute extends RouteBuilder {
 
         from(CLEARING)
                 .routeId("clearing")
-                .transacted()
                 .beanRef("csminsert")
                 .process(new StopTimingProcessor());
 
