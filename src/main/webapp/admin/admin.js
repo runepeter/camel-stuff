@@ -52,7 +52,7 @@ function updateDatabaseNumbers() {
 
 function updateMessage() {
     $.get('../service/message/', function(data) {
-        $('#info_span').html(data);
+        $('#messagesDiv').html("<h3>" + data + "</h3>");
     });
     setTimeout('updateMessage()', 5000);
 }
