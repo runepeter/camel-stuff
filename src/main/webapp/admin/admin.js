@@ -4,18 +4,6 @@ $(document).ready(function() {
     updateMessage();
 });
 
-
-
-function fileUpload() {
-    $('#info_span').text("Uploading file");
-   // setTimeout('refreshPage();', 2000);
-    //$tabs.tabs('select', '#' + ui.panel.id);
-}
-
-function loadOkFile() {
-    
-}
-
 function updateCounters() {
     message("route=receive&attribute=ExchangesTotal", "receivedCount");
     message("route=balance&attribute=ExchangesTotal", "balanceCount");
@@ -28,7 +16,7 @@ function message(requestString, id) {
     http.open("GET", "../service/jmxrest?" + requestString, true);
     http.onreadystatechange = function() {
         if (http.readyState == 4) {
-            document.getElementById(id).innerHTML = http.responseText;
+            $('#diagramSvg #' + id).text(http.responseText);
         }
     };
     http.send(null);
@@ -45,7 +33,7 @@ function updateDatabaseNumbers() {
         if (data > 999) {
             s = s.substring(0, s.length-3)+" "+s.substring(s.length-3, s.length)
         }
-        $('#saldo').html(s);
+        $('#saldoDiv DIV.amount').html(s);
     });
     $.get('../service/balance/reserved/', function(data) {
         j = ""+data
@@ -56,7 +44,7 @@ function updateDatabaseNumbers() {
         if (data > 999) {
             j = j.substring(0, j.length-3)+" "+j.substring(j.length-3, j.length)
         }
-        $('#reserved').html(j);
+        $('#reservedDiv DIV.amount').html(j);
     });
     setTimeout('updateDatabaseNumbers()', 500);
 
