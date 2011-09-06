@@ -44,7 +44,14 @@ public class PaymentRoute extends RouteBuilder {
         from(CLEARING_AGGREGATOR)
                 .aggregate(header("MyCorrelationId"), groupExchanges())
                 .completionSize(1000)
-                .to(CLEARING);
+                .completionTimeout(30000)
+                .choice()
+                    .when(timeout())
+                        .beanRef("balanceService", "rollbackReservations")
+                    .otherwise()
+                        .beanRef("balanceService", "commitReservations")
+                        .to(CLEARING)
+                .end();
 
 
         from(CLEARING)
