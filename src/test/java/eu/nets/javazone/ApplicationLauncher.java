@@ -7,6 +7,7 @@ import org.mortbay.jetty.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +21,12 @@ public class ApplicationLauncher {
     private ApplicationContext applicationContext;
 
     public static void main(String[] args) {
+        if (args != null && args.length > 0 && "-dropDB".equals(args[0])){
+            new File("testdb.h2.db").delete();
+            new File("testdb.lock.db").delete();
+            new File("testdb.trace.db").delete();
+        }
+
         ApplicationLauncher launcher = new ApplicationLauncher();
         launcher.startServer(9090);
     }
