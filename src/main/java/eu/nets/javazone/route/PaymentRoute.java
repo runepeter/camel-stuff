@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class PaymentRoute extends RouteBuilder {
 
 
-    public static final String RECEIVE = "jms:receive";
+    public static final String RECEIVE = "jms:receive?transacted=true";
     public static final String BALANCE = "direct:balance";
     public static final String CLEARING_AGGREGATOR = "direct:clearing_aggregator";
     public static final String CLEARING = "direct:clearing";
