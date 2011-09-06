@@ -16,7 +16,7 @@ import java.util.Date;
 @Service
 public class BalanceService {
 
-    private final boolean test = false;
+    private final boolean test = true;
 
     private final SimpleJdbcTemplate jdbc;
     @Autowired

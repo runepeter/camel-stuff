@@ -27,21 +27,7 @@ public class PaymentRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        from(RECEIVE)
-                .routeId("receive")
-                .process(new StartTimingProcessor())
-                .to(BALANCE);
 
-        from(BALANCE)
-                .routeId("balance")
-                .to(CLEARING_AGGREGATOR);
-
-        from(CLEARING_AGGREGATOR)
-                .to(CLEARING);
-
-        from(CLEARING)
-                .routeId("clearing")
-                .process(new StopTimingProcessor());
 
     }
 
