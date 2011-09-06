@@ -26,43 +26,7 @@ public class PaymentRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        configureThreadPool();
 
-
-        from(RECEIVE)
-                .routeId("receive")
-                .transacted()
-                .process(new StartTimingProcessor())
-                .setHeader("MyCorrelationId", simple("${exchangeId}"))
-                .split(body(String.class).tokenize("\n"))
-                .to(BALANCE);
-
-        from(BALANCE)
-                .routeId("balance")
-                .transacted()
-                .beanRef("balanceService", "checkBalanceAndReserveAmount")
-                .validate(header("BALANCE_CHECK").isEqualTo("OK"))
-                .to(CLEARING_AGGREGATOR);
-
-        from(CLEARING_AGGREGATOR)
-                .transacted()
-                .aggregate(header("MyCorrelationId"), groupExchanges())
-                .completionTimeout(30000)
-                .completionSize(1000)
-                .aggregationRepositoryRef("aggregatorRepository")
-                .choice()
-                    .when(timeout())
-                        .beanRef("balanceService", "rollbackReservations")
-                    .otherwise()
-                        .beanRef("balanceService", "commitReservations")
-                        .to(CLEARING)
-                .end();
-
-
-        from(CLEARING)
-                .routeId("clearing")
-                .beanRef("csminsert")
-                .process(new StopTimingProcessor());
 
     }
 
