@@ -23,6 +23,7 @@
                     $('#fileDiv').hide();
                     $('#fileDiv').removeAttr('style');
                     $.get('/service/upload/okfile', function(data) {
+
                         $('#fileDiv').show();
                     });
                 }
@@ -65,16 +66,16 @@
         }
 
         #saldoDiv {
-            float: left;
-        }
-
-        #reservedDiv {
             float: right;
         }
 
+        #reservedDiv {
+            float: left;
+            margin-left: 203px;
+        }
+
         #resetButton {
-            float: none;
-            margin-left: 150px;
+            float: left;
         }
 
         #diagramDiv {
@@ -125,6 +126,7 @@
     </div>
 
     <div id="statusDiv" class="ui-widget">
+        <button id="resetButton">Reset</button>
         <div id="saldoDiv" class="ui-widget-content">
             <div class="ui-widget-header">Saldo</div>
             <div class="amount">????</div>
@@ -133,7 +135,6 @@
             <div class="ui-widget-header">Reservert</div>
             <div class="amount">????</div>
         </div>
-        <button id="resetButton">Reset</button>
     </div>
 
     <div id="diagramDiv" class="ui-widget-content">
