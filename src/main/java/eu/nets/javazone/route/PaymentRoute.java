@@ -18,7 +18,7 @@ public class PaymentRoute extends RouteBuilder {
 
 
     public static final String RECEIVE = "jms:receive?transacted=true";
-    public static final String BALANCE = "direct:balance";
+    public static final String BALANCE = "jms:balance?concurrentConsumers=100&maxConcurrentConsumers=100&transacted=true";
     public static final String CLEARING_AGGREGATOR = "direct:clearing_aggregator";
     public static final String CLEARING = "direct:clearing";
 
@@ -26,7 +26,6 @@ public class PaymentRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        configureThreadPool();
 
         from(RECEIVE)
                 .routeId("receive")
@@ -34,7 +33,6 @@ public class PaymentRoute extends RouteBuilder {
                 .process(new StartTimingProcessor())
                 .setHeader("MyCorrelationId", simple("${exchangeId}"))
                 .split(body(String.class).tokenize("\n"))
-                .parallelProcessing().threads(100)
                 .to(BALANCE);
 
         from(BALANCE)
