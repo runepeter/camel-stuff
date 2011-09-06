@@ -29,18 +29,25 @@ public class PaymentRoute extends RouteBuilder {
         from(RECEIVE)
                 .routeId("receive")
                 .process(new StartTimingProcessor())
+                .setHeader("MyCorrelationId", simple("${exchangeId}"))
+                .split(body(String.class).tokenize("\n"))
                 .to(BALANCE);
 
         from(BALANCE)
                 .routeId("balance")
+                .beanRef("balanceService", "checkBalanceAndReserveAmount")
+                .validate(header("BALANCE_CHECK").isEqualTo("OK"))
                 .to(CLEARING_AGGREGATOR);
 
         from(CLEARING_AGGREGATOR)
+                .aggregate(header("MyCorrelationId"), groupExchanges())
+                .completionSize(1000)
                 .to(CLEARING);
 
 
         from(CLEARING)
                 .routeId("clearing")
+                .beanRef("csminsert")
                 .process(new StopTimingProcessor());
 
 
