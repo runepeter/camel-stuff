@@ -26,12 +26,15 @@ public class PaymentRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
+        configureThreadPool();
+
         from(RECEIVE)
                 .routeId("receive")
                 .transacted()
                 .process(new StartTimingProcessor())
                 .setHeader("MyCorrelationId", simple("${exchangeId}"))
                 .split(body(String.class).tokenize("\n"))
+                .parallelProcessing().threads(100)
                 .to(BALANCE);
 
         from(BALANCE)
