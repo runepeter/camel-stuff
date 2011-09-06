@@ -26,8 +26,9 @@ public class PaymentRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-         from(RECEIVE)
+        from(RECEIVE)
                 .routeId("receive")
+                .transacted()
                 .process(new StartTimingProcessor())
                 .setHeader("MyCorrelationId", simple("${exchangeId}"))
                 .split(body(String.class).tokenize("\n"))
