@@ -46,6 +46,7 @@ public class PaymentRoute extends RouteBuilder {
                 .aggregate(header("MyCorrelationId"), groupExchanges())
                 .completionSize(1000)
                 .completionTimeout(30000)
+                .aggregationRepositoryRef("aggregatorRepository")
                 .choice()
                     .when(timeout())
                         .beanRef("balanceService", "rollbackReservations")
