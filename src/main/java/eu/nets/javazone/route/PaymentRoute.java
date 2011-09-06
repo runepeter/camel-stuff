@@ -37,6 +37,7 @@ public class PaymentRoute extends RouteBuilder {
 
         from(BALANCE)
                 .routeId("balance")
+                .transacted()
                 .beanRef("balanceService", "checkBalanceAndReserveAmount")
                 .validate(header("BALANCE_CHECK").isEqualTo("OK"))
                 .to(CLEARING_AGGREGATOR);
