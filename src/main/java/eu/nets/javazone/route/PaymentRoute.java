@@ -43,6 +43,7 @@ public class PaymentRoute extends RouteBuilder {
         from(CLEARING_AGGREGATOR)
                 .aggregate(header("MyCorrelationId"), groupExchanges())
                 .completionSize(1000)
+                .aggregationRepositoryRef("aggregatorRepository")
                 .to(CLEARING);
 
 
